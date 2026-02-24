@@ -1,2 +1,11 @@
-# Ignore all __pycache__ directories
+# Python cache
 __pycache__/
+
+# Virtual environment folder
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+.env.*
