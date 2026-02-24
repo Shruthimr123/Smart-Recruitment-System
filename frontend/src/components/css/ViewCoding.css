@@ -1,0 +1,557 @@
+/* =========================
+   Coding Questions Container
+========================= */
+.coding-questions-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* =========================
+   Header Section
+========================= */
+.coding-questions-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.coding-questions-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #000000; 
+  margin-bottom: 0.5rem;
+}
+
+.coding-questions-header p {
+  font-size: 1.1rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* =========================
+   Filters Section
+========================= */
+.coding-filters-section {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #9ca3af;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  position: relative;
+  z-index: 1;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.difficulty-filter {
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  min-width: 200px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.difficulty-filter:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* =========================
+   Results Info
+========================= */
+.results-info {
+  margin-bottom: 1.5rem;
+}
+
+.results-count {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* =========================
+   Problems Grid
+========================= */
+.problems-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.problem-card {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.problem-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #667eea;
+}
+
+.problem-card.expanded {
+  border-color: #667eea;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+}
+
+/* =========================
+   Problem Header
+========================= */
+.problem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.problem-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.difficulty-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+.problem-key {
+  font-size: 0.8rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-family: 'Monaco', 'Consolas', monospace;
+}
+
+.expand-button {
+  padding: 0.5rem 1rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.expand-button:hover {
+  background: #5a6fd8;
+  transform: translateY(-1px);
+}
+
+/* =========================
+   Problem Content
+========================= */
+.problem-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.problem-description {
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* =========================
+   Problem Details
+========================= */
+.problem-details {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detail-section {
+  margin-bottom: 1.5rem;
+}
+
+.detail-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+/* =========================
+   Language Configs
+========================= */
+.language-configs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.language-config {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border-radius: 6px;
+}
+
+.language-config strong {
+  min-width: 80px;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.code-signature {
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.8rem;
+  background: #1f2937;
+  color: #e5e7eb;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  flex: 1;
+}
+
+/* =========================
+   Test Cases
+========================= */
+.test-cases {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.test-case {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+}
+
+.test-case-input,
+.test-case-output {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.test-case-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  min-width: 120px;
+}
+
+.test-case code {
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.8rem;
+  background: #ffffff;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  flex: 1;
+}
+
+/* =========================
+   Pagination
+========================= */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+.pagination-button {
+  padding: 0.75rem 1.5rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background: #5a6fd8;
+  transform: translateY(-1px);
+}
+
+.pagination-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pagination-number {
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 3rem;
+}
+
+.pagination-number:hover {
+  background: #f3f4f6;
+  border-color: #667eea;
+}
+
+.pagination-number.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+/* =========================
+   Loading State
+========================= */
+.coding-questions-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f1f5f9;
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.coding-questions-loading p {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+/* =========================
+   Error State
+========================= */
+.coding-questions-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.coding-questions-error h3 {
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.coding-questions-error p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.retry-button {
+  padding: 0.75rem 1.5rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.retry-button:hover {
+  background: #5a6fd8;
+}
+
+/* =========================
+   No Results State
+========================= */
+.no-problems-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.no-problems-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-problems-found h3 {
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.no-problems-found p {
+  color: #6b7280;
+}
+
+/* =========================
+   Responsive Design
+========================= */
+@media (max-width: 768px) {
+  .coding-questions-container {
+    padding: 1rem;
+  }
+
+  .coding-questions-header h1 {
+    font-size: 2rem;
+  }
+
+  .coding-filters-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    min-width: auto;
+  }
+
+  .problem-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .expand-button {
+    align-self: stretch;
+  }
+
+  .test-case-input,
+  .test-case-output {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .test-case-label {
+    min-width: auto;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pagination-numbers {
+    order: -1;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .coding-questions-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .problem-card {
+    padding: 1rem;
+  }
+
+  .problem-title {
+    font-size: 1.1rem;
+  }
+
+  .pagination-number {
+    padding: 0.5rem 0.75rem;
+    min-width: 2.5rem;
+  }
+}

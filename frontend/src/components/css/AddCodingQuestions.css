@@ -1,0 +1,508 @@
+/* =========================
+   Add Coding Container
+========================= */
+.add-coding-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #f8fafc;
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+/* =========================
+   Header Section
+========================= */
+.form-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.form-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.75rem 0;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.form-header p {
+  color: #718096;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* =========================
+   Form Styling
+========================= */
+.coding-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.form-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+}
+
+.form-section:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.form-section h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f7fafc;
+}
+
+/* =========================
+   Section Header with Add Button
+========================= */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-header h3 {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* =========================
+   Form Grid Layout
+========================= */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4a5568;
+  letter-spacing: -0.025em;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #2d3748;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #a0aec0;
+  font-weight: 400;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #059669;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+  transform: translateY(-1px);
+}
+
+.form-group select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 1rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+.form-group small {
+  margin-top: 0.25rem;
+  color: #718096;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* =========================
+   Checkbox Styling
+========================= */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  padding: 0.5rem 0;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  background-color: #059669;
+  border-color: #059669;
+}
+
+.checkbox-label input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+/* =========================
+   Configurations and Test Cases Grid
+========================= */
+.configs-grid,
+.test-cases-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.config-card,
+.test-case-card {
+  background: #f8fafc;
+  border: 2px solid #f1f5f9;
+  border-radius: 12px;
+  padding: 1.75rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.config-card:hover,
+.test-case-card:hover {
+  border-color: #e2e8f0;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card-header h4 {
+  color: #2d3748;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* =========================
+   Button Styling
+========================= */
+.add-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-button:hover {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+}
+
+.add-button:active {
+  transform: translateY(0);
+}
+
+.remove-button {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.remove-button:hover {
+  background: #c53030;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(229, 62, 62, 0.3);
+}
+
+/* =========================
+   Form Actions
+========================= */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.submit-btn {
+  padding: 1rem 3rem;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+  min-width: 200px;
+  letter-spacing: -0.025em;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.35);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: #718096;
+  box-shadow: none;
+}
+
+/* =========================
+   Loading State
+========================= */
+.submit-btn:disabled {
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn:disabled::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* =========================
+   Responsive Design
+========================= */
+@media (max-width: 1024px) {
+  .add-coding-container {
+    padding: 1.5rem;
+  }
+  
+  .form-header h1 {
+    font-size: 2.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .add-coding-container {
+    padding: 1rem;
+  }
+  
+  .form-header {
+    margin-bottom: 2rem;
+  }
+  
+  .form-header h1 {
+    font-size: 2rem;
+  }
+  
+  .form-header p {
+    font-size: 1rem;
+  }
+  
+  .form-section {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .section-header h3 {
+    text-align: center;
+  }
+  
+  .add-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .config-card,
+  .test-case-card {
+    padding: 1.25rem;
+  }
+  
+  .submit-btn {
+    padding: 0.875rem 2rem;
+    min-width: 180px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-coding-container {
+    padding: 0.75rem;
+  }
+  
+  .form-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .form-header p {
+    font-size: 0.95rem;
+  }
+  
+  .form-section {
+    padding: 1.25rem;
+    border-radius: 10px;
+  }
+  
+  .config-card,
+  .test-case-card {
+    padding: 1rem;
+  }
+  
+  .submit-btn {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .card-header h4 {
+    font-size: 0.95rem;
+  }
+}
+
+/* =========================
+   Accessibility Improvements
+========================= */
+@media (prefers-reduced-motion: reduce) {
+  .form-section,
+  .config-card,
+  .test-case-card,
+  .add-button,
+  .remove-button,
+  .submit-btn,
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    transition: none;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.add-button:focus-visible,
+.remove-button:focus-visible,
+.submit-btn:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+}
+
+.form-group input:focus-visible,
+.form-group select:focus-visible,
+.form-group textarea:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 0;
+}

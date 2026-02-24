@@ -1,0 +1,559 @@
+/* =========================
+   MCQ Dashboard Container
+========================= */
+.mcq-dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* =========================
+   Header Section
+========================= */
+.mcq-header-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.mcq-header-section h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.mcq-header-section p {
+  font-size: 1rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* =========================
+   Filters Container
+========================= */
+.mcq-filters-container {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* =========================
+   Search Box Styling (Fixed - using MCQ-specific classes)
+========================= */
+.mcq-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+}
+
+.mcq-search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #9ca3af;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.mcq-search-input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+  font-weight: 500;
+}
+
+.mcq-search-input::placeholder {
+  color: #a0aec0;
+  font-weight: 400;
+}
+
+.mcq-search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: #ffffff;
+  box-shadow: 
+    0 0 0 3px rgba(102, 126, 234, 0.1),
+    0 4px 12px rgba(102, 126, 234, 0.15);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   Filter Group
+========================= */
+.mcq-filter-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.mcq-skill-filter,
+.mcq-difficulty-filter {
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  min-width: 160px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.mcq-skill-filter:focus,
+.mcq-difficulty-filter:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* =========================
+   Results Info
+========================= */
+.mcq-results-info {
+  margin-bottom: 1rem;
+}
+
+.mcq-results-count {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* =========================
+   Questions Grid
+========================= */
+.mcq-questions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.mcq-question-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.mcq-question-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #d1d5db;
+}
+
+/* =========================
+   Question Header
+========================= */
+.mcq-question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.mcq-question-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mcq-difficulty-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+.mcq-question-number {
+  font-size: 0.75rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Consolas', monospace;
+}
+
+.mcq-skill-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.6rem;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.mcq-skill-icon {
+  color: #4f46e5;
+}
+
+/* =========================
+   Question Content
+========================= */
+.mcq-question-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+/* =========================
+   Options Section
+========================= */
+.mcq-options-section {
+  margin-bottom: 0.75rem;
+}
+
+.mcq-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.mcq-option-item {
+  padding: 0.625rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.15s ease;
+}
+
+.mcq-option-item:hover {
+  background: #f1f5f9;
+}
+
+.mcq-option-item.mcq-correct-option {
+  background: #d1fae5;
+  border-color: #10b981;
+  border-left: 3px solid #10b981;
+}
+
+.mcq-option-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mcq-option-text {
+  color: #374151;
+  line-height: 1.4;
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.mcq-correct-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #065f46;
+  background: #a7f3d0;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.mcq-correct-icon {
+  color: #059669;
+}
+
+/* =========================
+   Question Footer
+========================= */
+.mcq-question-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.mcq-author-info {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.mcq-date {
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+/* =========================
+   Pagination
+========================= */
+.mcq-pagination-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.mcq-pagination-info {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.mcq-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.mcq-pagination-numbers {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.mcq-pagination-btn {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #374151;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+
+.mcq-pagination-btn:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.mcq-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mcq-pagination-btn.mcq-pagination-active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.mcq-pagination-prev,
+.mcq-pagination-next {
+  min-width: 80px;
+  justify-content: center;
+}
+
+/* =========================
+   Loading State
+========================= */
+.mcq-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.mcq-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #f1f5f9;
+  border-top: 2px solid #667eea;
+  border-radius: 50%;
+  animation: mcqSpin 1s linear infinite;
+  margin-bottom: 0.75rem;
+}
+
+@keyframes mcqSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.mcq-loading-container p {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* =========================
+   Error State
+========================= */
+.mcq-error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.mcq-error-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.mcq-error-container h3 {
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.mcq-error-container p {
+  color: #6b7280;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.mcq-retry-button {
+  padding: 0.625rem 1.25rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s ease;
+}
+
+.mcq-retry-button:hover {
+  background: #5a6fd8;
+}
+
+/* =========================
+   No Results State
+========================= */
+.mcq-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.mcq-no-results-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+.mcq-no-results h3 {
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.mcq-no-results p {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* =========================
+   Responsive Design
+========================= */
+@media (max-width: 768px) {
+  .mcq-dashboard-container {
+    padding: 1rem;
+  }
+
+  .mcq-header-section h1 {
+    font-size: 1.75rem;
+  }
+
+  .mcq-filters-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mcq-search-box {
+    min-width: auto;
+  }
+
+  .mcq-filter-group {
+    flex-direction: column;
+  }
+
+  .mcq-skill-filter,
+  .mcq-difficulty-filter {
+    min-width: auto;
+  }
+
+  .mcq-options-grid {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+
+  .mcq-question-card {
+    padding: 1rem;
+  }
+
+  .mcq-question-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .mcq-question-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .mcq-skill-tag {
+    align-self: flex-start;
+  }
+
+  .mcq-question-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .mcq-pagination-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mcq-pagination-numbers {
+    order: -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .mcq-header-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .mcq-question-title {
+    font-size: 0.95rem;
+  }
+
+  .mcq-option-text {
+    font-size: 0.85rem;
+  }
+}

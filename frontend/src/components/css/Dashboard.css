@@ -1,0 +1,520 @@
+/* Dashboard Styles */
+.dashboard {
+  width: 100%;
+  background-color: var(--main-bg-color);
+  padding: 1.5rem;
+  /* font-family: "Inter", sans-serif; */
+  font-family: var(--font-family-brooklyn);
+}
+
+.dashboard-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header Styles */
+.dashboard-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--header-color);
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+  color: var(--subheader-color);
+  font-size: 1rem;
+}
+
+/* Loading and Error States */
+.dashboard-loading {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.dashboard-error {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-content {
+  text-align: center;
+}
+
+.error-icon {
+  height: 3rem;
+  width: 3rem;
+  color: #ef4444;
+  margin: 0 auto 1rem;
+}
+
+.error-content h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.error-content p {
+  color: #6b7280;
+}
+
+/* Grid Layouts */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Metric Card Styles */
+.metric-card {
+  background: var(--main-bg-color);
+  border-radius: 0.5rem;
+  padding: 1.2rem;
+  border: 1.8px solid var(--border-color);
+}
+
+.metric-card:hover {
+  background-color: var(--hover);
+}
+
+.metric-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.metric-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.metric-info {
+  flex: 1;
+}
+
+.metric-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.metric-description {
+  font-size: 0.875rem;
+  color: var(--subbody-color);
+  margin: 0;
+}
+
+.metric-icon {
+  height: 2rem;
+  width: 2rem;
+  flex-shrink: 0;
+}
+
+/* Chart Card Styles */
+.chart-card {
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  background-color: var(--main-bg-color);
+  border: 1.5px solid var(--border-color);
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.chart-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.view-details-link {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+}
+
+.view-details-link:hover {
+  color: #2563eb;
+}
+
+.chart-content {
+  height: 200px;
+}
+
+/* Recent Candidates Section */
+.recent-candidates {
+  background: var(--main-bg-color);
+  border-radius: 0.5rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  padding-bottom: 10px;
+}
+
+.view-all-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: color 0.2s ease-in-out;
+}
+
+.view-all-link:hover {
+  color: #2563eb;
+}
+
+/* Table Styles */
+.candidates-table {
+  overflow-x: auto;
+}
+
+.candidates-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.candidates-table th {
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  background-color: var(--main-bg-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.candidates-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--bg-card);
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.candidates-table tr:hover {
+  background-color: var(--hover);
+}
+
+.candidate-name {
+  font-weight: 500;
+  color: var(--text-color);
+  text-transform: capitalize;
+}
+
+.skill-name {
+  color: var(--text-color);
+  text-transform: capitalize;
+}
+
+/* Badge Styles */
+.score-badge,
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.score-pass {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.score-fail {
+  background-color: #fecaca;
+  color: var(--red-color);
+}
+
+.status-pass {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-fail {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+.status-expired {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.status-pending {
+  background-color: #f3f4f6;
+  text-transform: capitalize;
+  color: #374151;
+}
+
+.status-complete {
+  text-transform: capitalize;
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-attempts-exceeded {
+  text-transform: capitalize;
+  background-color: rgb(240, 213, 163);
+  color: #654916;
+}
+
+.status-progress {
+  text-transform: capitalize;
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.metric-card,
+.chart-card,
+.recent-candidates {
+  background: var(--main-bg-color);
+  border-radius: 0.5rem;
+  border: 1.8px solid var(--border-color);
+  padding: 1.2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  cursor: pointer;
+}
+
+.metric-card:hover,
+.chart-card:hover,
+.recent-candidates:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  background-color: var(--hover);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;  /* THIS centers vertically */
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 800px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  position: relative;
+  animation: fadeInScale 0.3s ease-in-out;
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: #111827;
+}
+
+/* Candidate List */
+.modal-candidate-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: auto;
+  overflow-y: scroll;
+}
+
+.modal-candidate-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+
+.modal-candidate-item:hover {
+  background-color: #eef2ff;
+  transform: translateX(3px);
+}
+
+/* Footer */
+.modal-footer {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Buttons */
+.close-btn {
+  cursor: pointer;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  margin-left: 20px;
+  background-color: #333030;
+}
+
+.close-btn:hover {
+  background-color: #7a7171;
+}
+
+.view-all-btn {
+  cursor: pointer;
+  background-color: #4a9143;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+ 
+}
+
+.view-all-btn:hover {
+  background-color: #73ad6e;
+}
+
+/* Animations */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .candidates-table {
+    font-size: 0.75rem;
+  }
+
+  .candidates-table th,
+  .candidates-table td {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics-grid,
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

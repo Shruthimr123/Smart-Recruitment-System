@@ -1,0 +1,378 @@
+/* =========================
+   Jobs Container
+========================= */
+.jobs-container {
+  padding: 1.5rem;
+  background: #ffffff;
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+  min-height: auto;
+}
+
+/* =========================
+   Header Section
+========================= */
+.jobs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+}
+
+.header-title h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.jobs-count {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  background: #f3f4f6;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* =========================
+   Buttons
+========================= */
+.add-job-button,
+.clear-filters-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 44px;
+  padding: 0 1.25rem;
+  border: 2px solid;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.add-job-button {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border-color: #059669;
+}
+
+.add-job-button:hover {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
+}
+
+.clear-filters-button {
+  background: #ffffff;
+  color: #374151;
+  border-color: #e5e7eb;
+}
+
+.clear-filters-button:hover {
+  background: #f8fafc;
+  border-color: #d1d5db;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================
+   Table Container
+========================= */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   Table Styling
+========================= */
+.jobs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+/* Table Header */
+.jobs-table thead {
+  background: #f8fafc;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.jobs-table th {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.header-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  background: #ffffff;
+  color: #374151;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filter-input::placeholder {
+  color: #9ca3af;
+}
+
+.error-text {
+  font-size: 0.7rem;
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 0.125rem;
+}
+
+/* Table Body */
+.jobs-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+}
+
+.jobs-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.jobs-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.jobs-table td {
+  padding: 1rem 1.25rem;
+  font-size: 0.875rem;
+  color: #374151;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.job-title {
+  font-weight: 600;
+  color: #111827;
+}
+
+.job-client,
+.job-creator,
+.job-date {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* =========================
+   Loading State
+========================= */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f1f5f9;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-state p {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* =========================
+   Empty State
+========================= */
+.empty-state {
+  text-align: center;
+  padding: 4rem 1rem;
+  background: #ffffff;
+}
+
+.empty-state h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* =========================
+   Responsive Design
+========================= */
+@media (max-width: 1024px) {
+  .jobs-container {
+    padding: 1.25rem;
+  }
+  
+  .jobs-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .header-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .jobs-container {
+    padding: 1rem;
+  }
+
+  .header-title h2 {
+    font-size: 1.5rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .add-job-button,
+  .clear-filters-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .jobs-table th,
+  .jobs-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .jobs-table th {
+    font-size: 0.75rem;
+  }
+
+  .filter-input {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .table-container {
+    border-radius: 8px;
+  }
+  
+  .jobs-table th,
+  .jobs-table td {
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+  }
+  
+  .header-label {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .jobs-container {
+    padding: 0.75rem;
+  }
+
+  .header-title h2 {
+    font-size: 1.25rem;
+  }
+
+  .filter-input {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .add-job-button,
+  .clear-filters-button {
+    height: 40px;
+    padding: 0 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* =========================
+   Scrollbar Styling
+========================= */
+.table-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

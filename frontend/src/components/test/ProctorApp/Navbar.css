@@ -1,0 +1,125 @@
+/* Test Navbar.css - Updated Professional Version */
+
+:root {
+  --navbar-height: 60px;
+  --navbar-bg: #ffffff;
+  --navbar-border: #e2e8f0;
+  --timer-bg: #f8fafc;
+  --timer-text: #1e293b;
+  --timer-border: #cbd5e1;
+  --accent-color: #2563eb;
+}
+
+.test-navbar {
+  width: 100%;
+  height: var(--navbar-height);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  background-color: var(--navbar-bg);
+  border-bottom: 1px solid var(--navbar-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.test-navbar__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.test-navbar__logo {
+  height: 28px;
+  width: auto;
+}
+
+.test-navbar__center {
+  display: flex;
+  align-items: center;
+}
+
+.test-navbar__timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--timer-bg);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--timer-border);
+  font-family: 'Courier New', monospace;
+}
+
+.test-navbar__timer-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.test-navbar__timer-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--timer-text);
+  min-width: 45px;
+  text-align: center;
+}
+
+.test-navbar__right {
+  display: flex;
+  align-items: center;
+}
+
+.test-navbar__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.test-navbar__user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.test-navbar__user-status {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #059669;
+  background: #f0fdf4;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid #d1fae5;
+}
+
+.test-navbar__captured-image {
+  border-radius: 8px;
+  border: 2px solid #ffffff;
+  object-fit: cover;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.test-navbar__captured-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .test-navbar__content {
+    padding: 0 15px;
+  }
+  
+  .test-navbar__timer-label {
+    display: none;
+  }
+  
+  .test-navbar__user-status {
+    display: none;
+  }
+}

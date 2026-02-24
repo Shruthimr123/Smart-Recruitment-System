@@ -1,0 +1,127 @@
+/* @font-face {
+  font-family: "Franie";
+  src: url("assets/Franie.woff2");
+} */
+
+@font-face {
+  font-family: "Brooklyn";
+  src: url("assets/Brooklyn.woff2");
+}
+
+*,
+::before,
+::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* disabled the scrollbar in the browser */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  --font-family-brooklyn:'Inter', 'Segoe UI', system-ui, sans-serif;
+
+  --main-bg-color: #fff;
+
+  --text-color: #000000;
+  --subbody-color: #333333;
+
+  --header-color: #000000;
+  --subheader-color: #333333;
+  --btn-color: #363636;
+
+  --bg-card: #d4d4d4;
+  --border-color: #d2d2d3;
+  --hover: #f9fafb;
+  --green-color: #166534;
+  --red-color: #991b1b;
+}
+
+body {
+  font-family: var(--font-family-brooklyn);
+  /* font-family: "Ubuntu", sans-serif; */
+  font-weight: 300;
+  font-style: normal;
+  font-size: 1rem;
+  color: #000000;
+  background-color: #fff;
+}
+
+button {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  user-select: none;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #535bf2;
+}
+
+.btn {
+  padding: 0.5em 0.6em;
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--main-bg-color);
+  font-family: var(--font-family-brooklyn);
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: #88a2be;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: var(--hover);
+  border: 1.5px solid var(--border-color);
+  color: var(--red-color);
+}
+
+button {
+  font-family: var(--font-family-brooklyn);
+  color: var(--text-color);
+}
+input {
+  font-family: var(--font-family-brooklyn);
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+input::placeholder {
+  color: var(--text-color);
+  font-family: var(--font-family-brooklyn);
+}
+
+select {
+  color: var(--text-color);
+  font-family: var(--font-family-brooklyn);
+}
+
+select option {
+  color: var(--text-color);
+  font-family: var(--font-family-brooklyn);
+}

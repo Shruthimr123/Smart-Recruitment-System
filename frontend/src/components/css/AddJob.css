@@ -1,0 +1,191 @@
+/* =========================
+   Add Job Wrapper
+========================= */
+.add-job-wrapper {
+  padding: 1rem 1.5rem;
+  background: #f8fafc; /* Same background as AddUsers page */
+  font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+  min-height: auto; /* Remove extra height */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* =========================
+   Page Title
+========================= */
+.add-job-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin: 0.5rem 0 1.5rem 0; /* Reduced margin */
+  line-height: 1.3;
+}
+
+/* =========================
+   Add Job Container
+========================= */
+.add-job-container {
+  width: 100%;
+  max-width: 480px; /* Same as AddUsers page */
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem; /* Reduced padding */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 1rem; /* Reduced bottom margin */
+}
+
+/* =========================
+   Form Styling
+========================= */
+.job-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Reduced gap */
+  width: 100%;
+}
+
+.job-input {
+  padding: 0.875rem 1.25rem;
+  font-size: 0.875rem;
+  border: 2px solid #e1e5e9; /* Same border color as AddUsers */
+  border-radius: 12px; /* Same border radius as AddUsers */
+  background: #f8fafc; /* Same light blue background as AddUsers */
+  color: #2d3748; /* Same text color as AddUsers */
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-weight: 500; /* Same font weight as AddUsers */
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.job-input::placeholder {
+  color: #a0aec0; /* Same placeholder color as AddUsers */
+  font-weight: 400;
+}
+
+.job-input:focus {
+  outline: none;
+  border-color: #667eea; /* Same focus color as AddUsers */
+  background: #ffffff; /* White background on focus like AddUsers */
+  box-shadow: 
+    0 0 0 3px rgba(102, 126, 234, 0.1),
+    0 4px 12px rgba(102, 126, 234, 0.15); /* Same shadow as AddUsers */
+  transform: translateY(-1px); /* Same lift effect as AddUsers */
+}
+
+/* =========================
+   Submit Button
+========================= */
+.full-width-submit-btn {
+  margin-top: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+  width: 100% !important;
+  min-height: 56px;
+  display: block !important;
+  box-sizing: border-box !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.full-width-submit-btn:hover {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+}
+
+.full-width-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* =========================
+   Responsive Design
+========================= */
+@media (max-width: 768px) {
+  .add-job-wrapper {
+    padding: 0.75rem 1rem;
+  }
+  
+  .add-job-container {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+  
+  .add-job-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .job-form {
+    gap: 0.875rem;
+  }
+  
+  .job-input {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .submit-btn {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.8rem;
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-job-wrapper {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .add-job-container {
+    padding: 1.25rem;
+    border-radius: 10px;
+  }
+  
+  .add-job-title {
+    font-size: 1.375rem;
+    margin: 0.25rem 0 1rem 0;
+  }
+  
+  .job-input {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.75rem;
+  }
+  
+  .submit-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    min-height: 48px;
+  }
+}
+
+/* =========================
+   Animation
+========================= */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.add-job-container {
+  animation: fadeInUp 0.5s ease-out;
+}

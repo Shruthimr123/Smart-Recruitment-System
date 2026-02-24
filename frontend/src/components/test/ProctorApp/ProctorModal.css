@@ -1,0 +1,357 @@
+/* ProctorModal.css - Updated with circular frame and professional styling */
+
+.proctor-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.proctor-modal {
+  background: white;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.proctor-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.proctor-modal-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #64748b;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.close-button:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.proctor-modal-content {
+  padding: 24px;
+}
+
+.webcam-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.webcam-circle-frame {
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #0f172a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Border glow effects */
+.webcam-border-default {
+  border: 3px solid #64748b;
+  box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.3);
+}
+
+.webcam-border-ready {
+  border: 3px solid #10b981;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+.webcam-border-warning {
+  border: 3px solid #f59e0b;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+}
+
+.webcam-border-multiple {
+  border: 3px solid #f97316;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+}
+
+.webcam-border-error {
+  border: 3px solid #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+.webcam-border-captured {
+  border: 3px solid #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+.webcam-circle {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.webcam-circle.hide {
+  display: none;
+}
+
+.webcam-circle.show {
+  display: block;
+}
+
+.webcam-placeholder-circle {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  gap: 12px;
+  background-color: #1e293b;
+}
+
+.captured-image-circle {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detection-message {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  margin-top: 8px;
+}
+
+.detection-message.face_ready {
+  color: #10b981;
+  background-color: #d1fae5;
+  border-color: #a7f3d0;
+}
+
+.detection-message.face_too_far {
+  color: #f59e0b;
+  background-color: #fef3c7;
+  border-color: #fde68a;
+}
+
+.detection-message.multiple_faces {
+  color: #f97316;
+  background-color: #ffedd5;
+  border-color: #fed7aa;
+}
+
+.detection-message.no_face {
+  color: #ef4444;
+  background-color: #fee2e2;
+  border-color: #fecaca;
+}
+
+.status-indicator-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  margin-top: 8px;
+  font-size: 0.875rem;
+}
+
+.status-indicator-compact.success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-indicator-compact.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-indicator-compact.verifying {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.similarity-badge {
+  background-color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+
+.modal-actions-compact {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 30px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.modal-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-button .spinning {
+  animation: spin 1s linear infinite;
+}
+
+.capture-button {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+}
+
+.capture-button.active {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #2563eb;
+}
+
+.capture-button.active:hover {
+  background-color: #2563eb;
+}
+
+.capture-button.disabled {
+  background-color: #e2e8f0;
+  color: #94a3b8;
+}
+
+.recapture-button {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.recapture-button:hover {
+  background-color: #e2e8f0;
+}
+
+.verify-button {
+  background-color: #10b981;
+  color: white;
+  border: none;
+}
+
+.verify-button:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.retry-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  min-width: 160px;
+}
+
+.retry-button:hover {
+  background-color: #2563eb;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .webcam-circle-frame {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .modal-actions-compact {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .modal-button {
+    width: 100%;
+  }
+}
+
+/* Add these styles to your existing ProctorModal.css */
+
+.verification-error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 0.875rem;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.verification-error-message svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.status-indicator-compact.registering,
+.status-indicator-compact.verifying {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-indicator-compact.success {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-indicator-compact.mismatch {
+  background-color: #fee2e2;
+  color: #991b1b;
+}

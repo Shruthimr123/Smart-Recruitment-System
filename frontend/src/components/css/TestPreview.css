@@ -1,0 +1,369 @@
+/* Test Preview Modal Styles */
+.preview-overlay {
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+}
+
+.preview-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  border-bottom: 2px solid #e1e5e9;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.preview-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-preview {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-preview:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.preview-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px;
+}
+
+.preview-section {
+  margin-bottom: 40px;
+}
+
+.preview-section h3 {
+  color: #2d3748;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+}
+
+/* MCQ Preview Styles */
+.mcq-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.preview-mcq-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.preview-mcq-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.preview-question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.question-number {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.difficulty-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.difficulty-badge.easy {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.difficulty-badge.medium {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.difficulty-badge.hard {
+  background: #e9d8fd;
+  color: #44337a;
+}
+
+.preview-question-text {
+  color: #4a5568;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Coding Preview Styles */
+.coding-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.preview-coding-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 25px;
+}
+
+.preview-problem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.problem-number {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 1.1rem;
+}
+
+.preview-problem-title {
+  color: #2d3748;
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+}
+
+.preview-problem-description {
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.preview-test-cases {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.preview-test-cases h5 {
+  margin: 0 0 10px 0;
+  color: #2d3748;
+}
+
+.preview-test-cases ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.preview-test-cases li {
+  margin-bottom: 5px;
+  color: #4a5568;
+}
+
+/* Summary Styles */
+.preview-summary {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 8px;
+  padding: 25px;
+  color: white;
+}
+
+.preview-summary h3 {
+  color: white;
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+  margin-top: 0;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  font-weight: 500;
+}
+
+.summary-value {
+  font-weight: 600;
+}
+
+/* Preview Actions */
+.preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding: 20px 30px;
+  border-top: 1px solid #e1e5e9;
+  background: #f8fafc;
+}
+
+.close-preview-btn,
+.send-test-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-preview-btn {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.close-preview-btn:hover {
+  background: #cbd5e0;
+}
+
+.send-test-btn {
+  background: #48bb78;
+  color: white;
+}
+
+.send-test-btn:hover {
+  background: #38a169;
+}
+
+/* Preview Button in Form */
+.preview-button {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.preview-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.preview-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .preview-modal {
+    width: 95%;
+    height: 95vh;
+  }
+  
+  .preview-content {
+    padding: 20px;
+  }
+  
+  .preview-actions {
+    flex-direction: column;
+  }
+  
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Add these styles to TestPreview.css */
+
+.preview-options {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.preview-options ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+}
+
+.preview-options li {
+  margin: 4px 0;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.correct-option {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  font-weight: 600;
+}
+
+.skill-badge {
+  background: #6c757d;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.preview-function-signature {
+  margin: 12px 0;
+  padding: 10px;
+  background: #2d3748;
+  color: #e2e8f0;
+  border-radius: 6px;
+  font-family: monospace;
+}
+
+.preview-function-signature code {
+  display: block;
+  margin-top: 4px;
+  padding: 8px;
+  background: #1a202c;
+  border-radius: 4px;
+  overflow-x: auto;
+}

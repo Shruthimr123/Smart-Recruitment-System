@@ -1,0 +1,495 @@
+/* =========================
+   MCQ Result Container
+========================= */
+.mcq-result-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* =========================
+   Header Section
+========================= */
+.mcq-result-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.mcq-result-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.mcq-result-header p {
+  font-size: 1.1rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* =========================
+   Score Summary Card
+========================= */
+.score-summary-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.score-main {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.score-circle {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.score-progress {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.score-percentage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.score-details h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.score-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.score-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 180px;
+}
+
+.score-label {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.score-value {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+}
+
+.score-value.correct {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.score-value.incorrect {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.score-value.total {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+/* =========================
+   Questions Section
+========================= */
+.questions-section {
+  margin-bottom: 2rem;
+}
+
+.questions-section h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+.questions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* =========================
+   Question Card
+========================= */
+.mcq-question-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.mcq-question-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   Question Header
+========================= */
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.question-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.difficulty-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+.question-number {
+  font-size: 0.75rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.4rem 0.5rem;
+  border-radius: 50%;
+  font-weight: 600;
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #e5e7eb;
+}
+
+.status-indicator {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+  border-radius: 20px;
+}
+
+.status-indicator.correct {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-indicator.incorrect {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* =========================
+   Question Title
+========================= */
+.question-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+/* =========================
+   Options Grid
+========================= */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.option-card {
+  padding: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.option-card:hover {
+  background: #f3f4f6;
+}
+
+.option-card.selected {
+  border-color: #3b82f6;
+  background: #dbeafe;
+}
+
+.option-card.correct-option {
+  border-color: #10b981;
+  background: #d1fae5;
+}
+
+.option-card.incorrect-selected {
+  border-color: #ef4444;
+  background: #fee2e2;
+}
+
+.option-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.option-text {
+  color: #374151;
+  line-height: 1.4;
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.option-markers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-end;
+}
+
+.selected-marker {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  background: #dbeafe;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.correct-marker {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #065f46;
+  background: #a7f3d0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* =========================
+   Loading State
+========================= */
+.mcq-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f1f5f9;
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.mcq-loading-state p {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+/* =========================
+   Error State
+========================= */
+.mcq-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.mcq-error-state h3 {
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.mcq-error-state p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.retry-button {
+  padding: 0.75rem 1.5rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.retry-button:hover {
+  background: #5a6fd8;
+}
+
+/* =========================
+   Empty State
+========================= */
+.mcq-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.mcq-empty-state h3 {
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.mcq-empty-state p {
+  color: #6b7280;
+}
+
+/* =========================
+   Responsive Design
+========================= */
+@media (max-width: 768px) {
+  .mcq-result-container {
+    padding: 1rem;
+  }
+
+  .mcq-result-header h1 {
+    font-size: 2rem;
+  }
+
+  .score-summary-card {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  .score-main {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .score-circle {
+    width: 80px;
+    height: 80px;
+  }
+
+  .score-percentage {
+    font-size: 1.25rem;
+  }
+
+  .score-details h3 {
+    font-size: 1.1rem;
+  }
+
+  .score-item {
+    min-width: auto;
+  }
+
+  .question-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .options-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .option-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .option-markers {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mcq-result-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .mcq-question-card {
+    padding: 1.25rem;
+  }
+
+  .question-title {
+    font-size: 1rem;
+  }
+
+  .question-number {
+    min-width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+}
