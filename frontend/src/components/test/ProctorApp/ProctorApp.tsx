@@ -3,48 +3,47 @@ import { useDispatch, useSelector } from "react-redux";
 import "./ProctorApp.css";
 import WebcamCapture from "./WebcamCapture";
 import ProctorModal from "./ProctorModal";
- 
+
 import {
   setAlertMessage,
   setIsTestCompleted,
   setVerificationComplete,
-} from "../../../redux/slices/proctorSlice";
- 
+} from "../../../redux/slices/proctorSlice"; 
+
 import { type RootState } from "../../../redux/store";
 import { MALPRACTICE_LIMITS } from "../../../constants/proctorConstants";
- 
+
 type MyComponentProps = {
   handleFinalSubmit: () => Promise<void>;
   onVerificationComplete: () => void;
 };
- 
+
 const ProctorApp: React.FC<MyComponentProps> = ({
   handleFinalSubmit,
   onVerificationComplete,
 }) => {
   const dispatch = useDispatch();
-  const hasSubmittedRef = useRef(false);
- 
+  const hasSubmittedRef = useRef(false); 
+
   const {
     isTestStarted,
     isTestCompleted,
     malpracticeCount,
     verificationComplete,
   } = useSelector((state: RootState) => state.proctor);
- 
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showProctorModal, setShowProctorModal] = useState(false);
- 
+
   const applicantId = localStorage.getItem("applicantId") || "";
   const token = localStorage.getItem("token") || undefined;
- 
-  // Show proctor modal if test not started and not verified
+
   useEffect(() => {
     if (!isTestStarted && !verificationComplete && applicantId) {
       setShowProctorModal(true);
     }
   }, [isTestStarted, verificationComplete, applicantId]);
- 
+
   const handleVerificationComplete = (): void => {
     dispatch(setVerificationComplete(true));
     dispatch(
@@ -53,25 +52,25 @@ const ProctorApp: React.FC<MyComponentProps> = ({
     setShowProctorModal(false);
     onVerificationComplete();
   };
- 
+
   const triggerAutoSubmit = async (): Promise<void> => {
     if (hasSubmittedRef.current || isSubmitting) {
       console.log("Submission already in progress or completed");
       return;
     }
- 
+
     hasSubmittedRef.current = true;
     setIsSubmitting(true);
- 
+
     try {
       dispatch(
         setAlertMessage("❌ Test terminated due to multiple malpractices."),
       );
       dispatch(setIsTestCompleted(true));
- 
+
       console.log("Triggering auto-submit due to malpractice limit");
       await handleFinalSubmit();
- 
+
       console.log("Auto-submit completed successfully");
     } catch (error) {
       console.error("Error during auto-submit:", error);
@@ -79,13 +78,11 @@ const ProctorApp: React.FC<MyComponentProps> = ({
       setIsSubmitting(false);
     }
   };
- 
-  // Simplified handler - just logs, no increments
+
   const handleMalpracticeDetected = (message: string): void => {
     console.log(`Malpractice detected: ${message}`);
-    // Increment happens in WebcamCapture only
   };
- 
+
   useEffect(() => {
     if (
       isTestStarted &&
@@ -98,15 +95,14 @@ const ProctorApp: React.FC<MyComponentProps> = ({
       triggerAutoSubmit();
     }
   }, [malpracticeCount, isTestStarted, isSubmitting, isTestCompleted]);
- 
+
   const handleModalClose = () => {
-    // Don't allow closing without verification if test hasn't started
     if (!isTestStarted && !verificationComplete) {
       return;
     }
     setShowProctorModal(false);
   };
- 
+
   return (
     <div>
       <div className="main-content">
@@ -121,7 +117,7 @@ const ProctorApp: React.FC<MyComponentProps> = ({
           />
         )}
       </div>
- 
+
       {/* Proctor Modal for initial verification */}
       <ProctorModal
         isOpen={showProctorModal}
@@ -133,5 +129,5 @@ const ProctorApp: React.FC<MyComponentProps> = ({
     </div>
   );
 };
- 
+
 export default ProctorApp;

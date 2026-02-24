@@ -116,7 +116,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
         state.isAuthenticated = false;
       })
-      // REGISTER CASES - FIXED
+      // REGISTER CASES 
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;

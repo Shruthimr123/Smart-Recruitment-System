@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ApplicantQuestion } from 'src/applicant-questions/entities/applicant_questions.entity';
@@ -102,7 +103,7 @@ export class EvaluationService {
       return arr;
     };
 
-    // Step 1: Exclude previously seen question IDs
+    //Exclude previously seen question IDs
     let excludeQuestionIds: string[] = [];
     if (testAttemptId) {
       const existing = await this.applicantQuestionRepo.find({
@@ -117,7 +118,6 @@ export class EvaluationService {
       split: Partial<Record<'easy' | 'medium' | 'hard', number>> = {},
       allowHard: boolean,
     ) => {
-      // Ensure all keys exist and default to 0
       const safeSplit = {
         easy: split.easy ?? 0,
         medium: split.medium ?? 0,
@@ -283,7 +283,7 @@ export class EvaluationService {
     const result: McqQuestion[] = [];
 
     if (isFresher) {
-      const aptitude = await fetchAptitudeQuestions(); // 10 questions
+      const aptitude = await fetchAptitudeQuestions(); 
       const primary = await fetchQuestionsBySkill(
         primarySkillId,
         20,
@@ -323,7 +323,7 @@ export class EvaluationService {
     const uniqueQuestions = [...uniqueMap.values()];
 
     if (isFresher) {
-      // For freshers: aptitude first (already pushed first), then technical
+      // For freshers: aptitude first, then technical
       return limit
         ? uniqueQuestions.slice(0, limit)
         : uniqueQuestions.slice(0, 30);
@@ -484,7 +484,7 @@ export class EvaluationService {
         attemptId: savedAttempt.id,
         applicantId: savedApplicant.id,
         questionCount: manualQuestions.length + autoCount,
-        codingProblemKey: codingProblem.problemKey, // Return for reference
+        codingProblemKey: codingProblem.problemKey, 
         isPreview: true,
       };
     } catch (err) {
@@ -520,7 +520,7 @@ export class EvaluationService {
       let savedAttempt: TestAttempt;
 
       if (existingApplicant) {
-        // Applicant exists - check if we can create a new attempt
+        // Applicant exists 
         const existingAttempts = existingApplicant.test_attempts || [];
         const activeAttempts = existingAttempts.filter(
           (attempt) =>
@@ -586,7 +586,7 @@ export class EvaluationService {
         test_attempt: { id: savedAttempt.id },
       });
 
-      // 4.COPY MCQ QUESTIONS FROM PREVIEW INSTEAD OF REGENERATING
+      // 4.COPY MCQ QUESTIONS FROM PREVIEW 
       if (dto.previewProblemKey) {
         const previewAttempts = await this.attemptRepo
           .createQueryBuilder('attempt')
@@ -633,7 +633,6 @@ export class EvaluationService {
           );
         }
       } else {
-        // Fallback to original generation logic
 
         await this.generateAndSaveQuestions(
           dto,
@@ -644,7 +643,6 @@ export class EvaluationService {
       }
 
       // 5. ASSIGN CODING PROBLEM USING PREVIEW PROBLEM KEY
-
       if (dto.previewProblemKey) {
         await this.assignProblemByKey(
           dto.previewProblemKey,
@@ -818,7 +816,7 @@ export class EvaluationService {
     }
   }
 
-  // Assign random problem (fallback)
+  // Assign random problem 
   private async assignRandomProblem(
     applicantId: string,
     attemptId: string,
@@ -910,7 +908,7 @@ export class EvaluationService {
       );
     }
 
-    // For preview, select RANDOM problem
+    // RANDOM problem for preview
     const selected = problems[Math.floor(Math.random() * problems.length)];
 
     console.log(
@@ -949,7 +947,7 @@ export class EvaluationService {
     };
   }
 
-  //  get the assigned problem for preview
+  // get the assigned problem for preview
   async getAssignedProblemForPreview(
     applicantId: string,
     attemptId: string,
@@ -1053,10 +1051,26 @@ export class EvaluationService {
       throw new NotFoundException('Applicant not found for this token');
     }
 
+    //Check if applicant is blocked
+    if (applicant.is_blocked) {
+      throw new ForbiddenException('APPLICANT_BLOCKED');
+    }
+
+    // Check attempt count (max 3 attempts)
+    const attemptCount = await this.attemptRepo.count({
+      where: { applicant: { id: applicant.id } },
+    });
+
+    if (attemptCount >= 3 && !tokenEntity.test_attempt.is_preview) {
+      throw new BadRequestException('Maximum test attempts exceeded (3)');
+    }
+
     return {
       message: 'Token is valid',
       attemptId: tokenEntity.test_attempt.id,
       applicantId: applicant.id,
+      totalViolations: applicant.total_violations,
+      isBlocked: applicant.is_blocked,
     };
   }
 
@@ -1108,7 +1122,7 @@ export class EvaluationService {
         is_preview: true,
       });
 
-      // Delete preview coding problems - fix this line
+      // Delete preview coding problems 
       await queryRunner.manager
         .createQueryBuilder()
         .delete()
@@ -1128,7 +1142,7 @@ export class EvaluationService {
         is_preview: true,
       });
 
-      // Delete preview applicants (those with preview email prefix)
+      // Delete preview applicants
       await queryRunner.manager
         .createQueryBuilder()
         .delete()
@@ -1168,15 +1182,14 @@ export class EvaluationService {
 
     return { message: 'Token marked as used successfully' };
   }
-  // Add this method to the existing EvaluationService class
+
   async generateAITestLink(dto: any) {
-    // We'll modify the DTO to indicate AI mode
     console.log('=== AI METHOD CALLED ===');
     console.log('Incoming DTO in AI method:', dto);
     const aiDto = {
       ...dto,
       mcq_mode: McqMode.AI,
-      manual_mcqs: [], // No manual questions for AI mode
+      manual_mcqs: [], 
     };
 
     // Use the existing generatePreviewLink logic but mark as AI

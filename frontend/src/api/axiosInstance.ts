@@ -13,13 +13,11 @@ axiosInstance.interceptors.request.use(
     console.log("token from localStorage:", token);
 
     if (token) {
-      // Ensure headers is AxiosHeaders and set Authorization
       if (!(config.headers instanceof AxiosHeaders)) {
         config.headers = new AxiosHeaders(config.headers);
       }
       config.headers.set("Authorization", `Bearer ${token}`);
     }
-
     return config;
   },
   (error) => Promise.reject(error)

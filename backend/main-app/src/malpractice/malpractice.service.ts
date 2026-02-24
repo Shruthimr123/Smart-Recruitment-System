@@ -1,6 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Malpractice } from './entities/malpractice.entity';
 import { Applicant } from 'src/evaluation/entities/applicants.entity';
 
@@ -11,9 +15,9 @@ export class MalpracticeService {
     private readonly repo: Repository<Malpractice>,
     @InjectRepository(Applicant)
     private readonly applicantRepo: Repository<Applicant>,
+    private readonly dataSource: DataSource, 
   ) {}
 
-  // UPDATED: Register candidate with embedding
   async registerCandidate(data: {
     applicantId: string;
     profileImageUrl: string;
@@ -27,64 +31,255 @@ export class MalpracticeService {
       throw new BadRequestException('Applicant not found');
     }
 
+    // Check if applicant is blocked
+    if (applicant.is_blocked) {
+      throw new ForbiddenException(
+        'Applicant is permanently blocked due to violations',
+      );
+    }
+
     // Find earliest record for this applicant
     const existingRecord = await this.repo.findOne({
       where: { applicant: { id: data.applicantId } },
       order: { timestamp: 'ASC' },
     });
 
-    // If record exists AND has embedding, DO NOT overwrite
     if (existingRecord && existingRecord.embedding) {
       return {
         ...existingRecord,
         isExisting: true,
         message: 'Existing profile found - using stored embedding',
+        totalViolations: applicant.total_violations,
+        isBlocked: applicant.is_blocked,
       };
     }
 
-    // If record exists but embedding is null, update with new data
     if (existingRecord) {
       existingRecord.profileImageUrl = data.profileImageUrl;
       if (data.embedding) {
         existingRecord.embedding = data.embedding;
       }
-      return this.repo.save(existingRecord);
+      const saved = await this.repo.save(existingRecord);
+      return {
+        ...saved,
+        totalViolations: applicant.total_violations,
+        isBlocked: applicant.is_blocked,
+      };
     }
 
-    // Create new record
     const record = this.repo.create({
       applicant,
       profileImageUrl: data.profileImageUrl,
       embedding: data.embedding,
     });
 
-    return this.repo.save(record);
+    const saved = await this.repo.save(record);
+    return {
+      ...saved,
+      totalViolations: applicant.total_violations,
+      isBlocked: applicant.is_blocked,
+    };
   }
 
-  // NEW: Verify candidate identity
   async verifyCandidate(data: {
     applicantId: string;
     embedding: number[];
-  }): Promise<{ verified: boolean; similarity: number }> {
-    // Find earliest record with embedding
+  }): Promise<{
+    verified: boolean;
+    similarity: number;
+    totalViolations: number;
+    isBlocked: boolean;
+  }> {
+    const applicant = await this.applicantRepo.findOne({
+      where: { id: data.applicantId },
+    });
+
+    if (!applicant) {
+      throw new BadRequestException('Applicant not found');
+    }
+
+    // Check if applicant is blocked
+    if (applicant.is_blocked) {
+      throw new ForbiddenException(
+        'Applicant is permanently blocked due to violations',
+      );
+    }
+
     const storedRecord = await this.repo.findOne({
       where: { applicant: { id: data.applicantId } },
       order: { timestamp: 'ASC' },
     });
 
     if (!storedRecord || !storedRecord.embedding) {
-      throw new BadRequestException('No registered face found for this applicant');
+      throw new BadRequestException(
+        'No registered face found for this applicant',
+      );
     }
 
-    const similarity = this.cosineSimilarity(storedRecord.embedding, data.embedding);
-    
+    const similarity = this.cosineSimilarity(
+      storedRecord.embedding,
+      data.embedding,
+    );
+
     return {
       verified: similarity >= 0.65,
       similarity,
+      totalViolations: applicant.total_violations,
+      isBlocked: applicant.is_blocked,
     };
   }
 
-  // NEW: Calculate cosine similarity between two embeddings
+  async addAlert(data: {
+    applicantId: string;
+    alertMessage: string;
+    malpracticeImageUrl: string;
+  }): Promise<{
+    alert: Malpractice;
+    totalViolations: number;
+    isBlocked: boolean;
+    maxReached: boolean;
+  }> {
+    // Use transaction to ensure data consistency
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Find applicant with lock
+      const applicant = await queryRunner.manager.findOne(Applicant, {
+        where: { id: data.applicantId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!applicant) {
+        throw new BadRequestException('Applicant not found');
+      }
+
+      // Check if already blocked
+      if (applicant.is_blocked) {
+        throw new ForbiddenException('APPLICANT_BLOCKED');
+      }
+
+      // Find the first record for profile reference
+      const profileRecord = await queryRunner.manager.findOne(Malpractice, {
+        where: { applicant: { id: data.applicantId } },
+        order: { timestamp: 'ASC' },
+        relations: ['applicant'],
+      });
+
+      if (!profileRecord) {
+        throw new BadRequestException('Candidate not registered');
+      }
+
+      // Create alert record
+      const alertRecord = queryRunner.manager.create(Malpractice, {
+        applicant: { id: data.applicantId } as Applicant,
+        profileImageUrl: profileRecord.profileImageUrl,
+        alertMessage: data.alertMessage,
+        malpracticeImageUrl: data.malpracticeImageUrl,
+      });
+
+      const savedAlert = await queryRunner.manager.save(alertRecord);
+
+      // Increment total violations
+      applicant.total_violations += 1;
+
+      // Check if reached max violations
+      let maxReached = false;
+      if (applicant.total_violations >= 7) {
+        applicant.is_blocked = true;
+        applicant.blocked_at = new Date();
+        maxReached = true;
+
+        // Find and terminate any active test attempt 
+        const activeAttempt = await queryRunner.manager
+          .createQueryBuilder('test_attempts', 'attempt')
+          .where('attempt.applicant_id = :applicantId', {
+            applicantId: applicant.id,
+          })
+          .andWhere('attempt.test_status = :status', { status: 'attending' })
+          .andWhere('attempt.is_submitted = :isSubmitted', {
+            isSubmitted: false,
+          })
+          .getOne();
+
+        if (activeAttempt) {
+          // Update using query builder to avoid type issues
+          await queryRunner.manager
+            .createQueryBuilder()
+            .update('test_attempts')
+            .set({
+              is_submitted: true,
+              test_status: 'completed',
+              applicant_completed_at: new Date(),
+            })
+            .where('id = :id', { id: activeAttempt.id })
+            .execute();
+        }
+      }
+
+      await queryRunner.manager.save(applicant);
+      await queryRunner.commitTransaction();
+
+      return {
+        alert: savedAlert,
+        totalViolations: applicant.total_violations,
+        isBlocked: applicant.is_blocked,
+        maxReached,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async getViolationStatus(applicantId: string): Promise<{
+    totalViolations: number;
+    isBlocked: boolean;
+    remainingAttempts?: number;
+  }> {
+    const applicant = await this.applicantRepo.findOne({
+      where: { id: applicantId },
+    });
+
+    if (!applicant) {
+      throw new BadRequestException('Applicant not found');
+    }
+
+    // Calculate remaining attempts 
+    const remainingAttempts = applicant.is_blocked
+      ? 0
+      : Math.max(0, 3 - (await this.getAttemptCount(applicantId)));
+
+    return {
+      totalViolations: applicant.total_violations,
+      isBlocked: applicant.is_blocked,
+      remainingAttempts,
+    };
+  }
+
+  // Helper: Get attempt count
+  private async getAttemptCount(applicantId: string): Promise<number> {
+    const result = await this.dataSource
+      .createQueryBuilder()
+      .select('COUNT(*)', 'count')
+      .from('test_attempts', 'attempt')
+      .where('attempt.applicant_id = :applicantId', { applicantId })
+      .getRawOne();
+
+    return parseInt(result?.count || '0', 10);
+  }
+
+  async addScreenViolation(data: {
+    applicantId: string;
+    alertMessage: string;
+    malpracticeImageUrl: string;
+  }): Promise<any> {
+    return this.addAlert(data);
+  }
+
   private cosineSimilarity(a: number[], b: number[]): number {
     if (a.length !== b.length) {
       throw new BadRequestException('Embedding dimensions do not match');
@@ -105,41 +300,5 @@ export class MalpracticeService {
     }
 
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-  }
-
-  async addAlert(data: {
-    applicantId: string;
-    alertMessage: string;
-    malpracticeImageUrl: string;
-  }): Promise<Malpractice> {
-    // Find the first record for profile reference
-    const profileRecord = await this.repo.findOne({
-      where: { applicant: { id: data.applicantId } },
-      order: { timestamp: 'ASC' },
-      relations: ['applicant'],
-    });
-
-    if (!profileRecord) {
-      throw new BadRequestException('Candidate not registered');
-    }
-
-    const alertRecord = this.repo.create({
-      applicant: { id: data.applicantId } as Applicant,
-      profileImageUrl: profileRecord.profileImageUrl,
-      alertMessage: data.alertMessage,
-      malpracticeImageUrl: data.malpracticeImageUrl,
-      // Don't include embedding in alert records
-    });
-
-    return this.repo.save(alertRecord);
-  }
-
-  // Existing method for screen violations (unchanged)
-  async addScreenViolation(data: {
-    applicantId: string;
-    alertMessage: string;
-    malpracticeImageUrl: string;
-  }): Promise<Malpractice> {
-    return this.addAlert(data); // Reuse same logic
   }
 }

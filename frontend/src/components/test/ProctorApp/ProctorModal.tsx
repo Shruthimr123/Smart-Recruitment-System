@@ -512,7 +512,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
                   )}
                 </div>
 
-                {/* Face detection message - only in idle state */}
+                {/* Face detection message */}
                 {!capturedImage && cameraReady && modalState === 'idle' && (
                   <div className={`detection-message ${faceDetection.status}`}>
                     {faceDetection.message}

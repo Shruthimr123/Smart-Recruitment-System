@@ -6,21 +6,26 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   incrementMalpractice,
-  setIsTestStarted
+  setIsTestStarted,
+  setMalpracticeCount,
 } from "../../redux/slices/proctorSlice";
 import { setStarted } from "../../redux/slices/test/testSlice";
 import "../css/TestPage.css";
 import "../css/AITestPage.css";
 import { Loader2 } from "lucide-react";
-import axiosInstance from "../../api/axiosInstance";
+import axiosTestInstance from "../../api/axiosTestInstance";
 import { type RootState } from "../../redux/store";
 import CodingPlatform from "./CodingApp/CodingPlatform";
 import Alerts from "./ProctorApp/Alerts";
 import Navbar from "./ProctorApp/Navbar";
 import ProctorApp from "./ProctorApp/ProctorApp";
+import MalpracticeTerminated from "./ProctorApp/MalpracticeTerminated";
+import { MALPRACTICE_LIMITS } from "../../constants/proctorConstants";
 
 const formatTime = (sec: number) => {
-  const m = Math.floor(sec / 60).toString().padStart(2, "0");
+  const m = Math.floor(sec / 60)
+    .toString()
+    .padStart(2, "0");
   const s = (sec % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
 };
@@ -50,17 +55,12 @@ interface QuestionState {
 const AITestPage = () => {
   const { token, applicantId, attemptId } = useParams();
   const { verificationComplete, malpracticeCount } = useSelector(
-    (state: RootState) => state.proctor
+    (state: RootState) => state.proctor,
   );
 
   if (applicantId && attemptId) {
     localStorage.setItem("applicantId", applicantId.toString());
     localStorage.setItem("attemptId", attemptId.toString());
-  }
-
-  // Store token for axios interceptor
-  if (token) {
-    localStorage.setItem("token", token);
   }
 
   const dispatch = useDispatch<any>();
@@ -71,6 +71,7 @@ const AITestPage = () => {
   const [submittingFinal, setSubmittingFinal] = useState(false);
   const [showCodingPlatform, setShowCodingPlatform] = useState(false);
   const [timeLeft, setTimeLeftState] = useState(45 * 60);
+  const [isBlocked, setIsBlocked] = useState(false); // Permanent block state
 
   const [questions, setQuestions] = useState<QuestionState[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -83,19 +84,19 @@ const AITestPage = () => {
   const [maxAttempts] = useState(3);
   const [loading, setLoading] = useState(false);
   const [serverQuestionNumber, setServerQuestionNumber] = useState(1);
-  
+
   const isTestStarted = useSelector(
-    (state: RootState) => state.proctor.isTestStarted
+    (state: RootState) => state.proctor.isTestStarted,
   );
 
   const submittedRef = useRef(false);
   const timeLeftRef = useRef(timeLeft);
   const startedRef = useRef(isTestStarted);
-  
+
   useEffect(() => {
     startedRef.current = isTestStarted;
   }, [isTestStarted]);
-  
+
   const handlingSubmissionRef = useRef(false);
 
   useEffect(() => {
@@ -105,29 +106,113 @@ const AITestPage = () => {
     navigateRef.current = navigate;
   }, [submittingFinal, timeLeft, isTestStarted, navigate]);
 
-  // Token validation
+  // Listen for block events from WebcamCapture
+  useEffect(() => {
+    const handleBlockEvent = () => {
+      console.log("🚫 Applicant blocked event received in AI Test");
+      setIsBlocked(true);
+      // Stop the test if it's running
+      if (isTestStarted) {
+        dispatch(setIsTestStarted(false));
+        dispatch(setStarted(false));
+      }
+      // Exit fullscreen
+      if (handle.active) {
+        handle.exit();
+      }
+    };
+
+    window.addEventListener("applicant-blocked", handleBlockEvent);
+
+    return () => {
+      window.removeEventListener("applicant-blocked", handleBlockEvent);
+    };
+  }, [dispatch, isTestStarted, handle]);
+
+  // CHECK FOR BLOCKED APPLICANT ON TOKEN VALIDATION
   useEffect(() => {
     const validateToken = async () => {
       try {
         if (!token) throw new Error("No token");
-        await axiosInstance.get(`/test/start/${token}`);
+        const response = await axiosTestInstance.get(`/test/start/${token}`);
+        console.log("Token validation successful:", response.data);
         setLoading(false);
-      } catch (err) {
+
+        // If response contains violation info, update Redux
+        if (response.data.totalViolations !== undefined) {
+          dispatch(setMalpracticeCount(response.data.totalViolations));
+        }
+
+        // Check if applicant is blocked from response
+        if (response.data.isBlocked === true) {
+          console.log(
+            "🚫 Applicant is permanently blocked from token validation",
+          );
+          setIsBlocked(true);
+          return;
+        }
+      } catch (err: any) {
+        console.error("Token validation failed:", err);
         setLoading(false);
+
+        // Check if applicant is blocked
+        if (
+          err.response?.status === 403 &&
+          err.response?.data?.message === "APPLICANT_BLOCKED"
+        ) {
+          console.log("🚫 Applicant is permanently blocked");
+          setIsBlocked(true);
+          return;
+        }
+
         navigate("/link-expired");
       }
     };
     validateToken();
-  }, [token, navigate]);
+  }, [token, navigate, dispatch]);
+
+  //Auto-terminate when malpractice count reaches threshold
+  useEffect(() => {
+    if (
+      malpracticeCount >= MALPRACTICE_LIMITS.MAX_COUNT &&
+      isTestStarted &&
+      !submittingFinal &&
+      !isBlocked
+    ) {
+      console.log("⚠️ Malpractice threshold reached, terminating test");
+
+      // Show final alert
+      toast.error("Test terminated due to excessive violations");
+
+      // Set blocked state
+      setIsBlocked(true);
+
+      // Stop the test
+      dispatch(setIsTestStarted(false));
+      dispatch(setStarted(false));
+
+      // Exit fullscreen
+      if (handle.active) {
+        handle.exit();
+      }
+    }
+  }, [
+    malpracticeCount,
+    isTestStarted,
+    submittingFinal,
+    isBlocked,
+    dispatch,
+    handle,
+  ]);
 
   // Fetch initial attempt count
   useEffect(() => {
     const getInitialAttemptCount = async () => {
-      if (!token || !applicantId || !attemptId) return;
+      if (!token || !applicantId || !attemptId || isBlocked) return;
       try {
-        const response = await axiosInstance.get(
+        const response = await axiosTestInstance.get(
           `/ai-test/assigned/${applicantId}/${attemptId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         setAttemptCount(response.data.attemptCount || 0);
       } catch (error) {
@@ -135,7 +220,7 @@ const AITestPage = () => {
       }
     };
     getInitialAttemptCount();
-  }, [token, applicantId, attemptId]);
+  }, [token, applicantId, attemptId, isBlocked]);
 
   // Timer restore
   useEffect(() => {
@@ -146,7 +231,7 @@ const AITestPage = () => {
 
   // Timer decrement
   useEffect(() => {
-    if (!isTestStarted || submittingFinal) return;
+    if (!isTestStarted || submittingFinal || isBlocked) return;
     const timer = setInterval(() => {
       if (!submittedRef.current && startedRef.current) {
         setTimeLeftState((prev) => {
@@ -157,18 +242,24 @@ const AITestPage = () => {
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [isTestStarted, submittingFinal, attemptId]);
+  }, [isTestStarted, submittingFinal, attemptId, isBlocked]);
 
   // Auto submit
   useEffect(() => {
-    if (timeLeft <= 0 && isTestStarted && !submittingFinal && !submittedRef.current) {
+    if (
+      timeLeft <= 0 &&
+      isTestStarted &&
+      !submittingFinal &&
+      !submittedRef.current &&
+      !isBlocked
+    ) {
       handleFinalSubmit();
     }
-  }, [timeLeft, isTestStarted, submittingFinal]);
+  }, [timeLeft, isTestStarted, submittingFinal, isBlocked]);
 
   // Malpractice monitoring
   useEffect(() => {
-    if (!isTestStarted || submittingFinal) return;
+    if (!isTestStarted || submittingFinal || isBlocked) return;
 
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) toast.warning("You exited fullscreen.");
@@ -182,7 +273,7 @@ const AITestPage = () => {
     };
 
     const beforeUnload = (e: BeforeUnloadEvent) => {
-      if (!submittedRef.current) {
+      if (!submittedRef.current && !isBlocked) {
         e.preventDefault();
         e.returnValue = "Are you sure you want to leave?";
         return "Are you sure you want to leave?";
@@ -198,10 +289,16 @@ const AITestPage = () => {
       document.removeEventListener("visibilitychange", handleTabChange);
       window.removeEventListener("beforeunload", beforeUnload);
     };
-  }, [isTestStarted, submittingFinal, malpracticeCount, dispatch]);
+  }, [isTestStarted, submittingFinal, malpracticeCount, dispatch, isBlocked]);
 
   const handleStartTest = async () => {
+    // CHECK IF ALREADY BLOCKED
+    if (isBlocked) {
+      return; 
+    }
+
     if (isStartingTest) return;
+
     if (attemptCount >= maxAttempts) {
       navigate("/attempts-exceeded");
       return;
@@ -211,11 +308,19 @@ const AITestPage = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post(
+      const response = await axiosTestInstance.post(
         `/ai-test/start/${applicantId}/${attemptId}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
+
+      // CHECK IF BACKEND RESPONSE INDICATES BLOCKED
+      if (response.data.isBlocked === true) {
+        console.log("🚫 Backend indicates applicant is blocked");
+        setIsBlocked(true);
+        setLoading(false);
+        return;
+      }
 
       if (response.data.skipMCQ) {
         setShowCodingPlatform(true);
@@ -228,9 +333,9 @@ const AITestPage = () => {
 
       setAttemptCount(response.data.attemptCount || 0);
 
-      const questionsResponse = await axiosInstance.get(
+      const questionsResponse = await axiosTestInstance.get(
         `/ai-test/questions/${applicantId}/${attemptId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       if (
@@ -239,19 +344,30 @@ const AITestPage = () => {
       ) {
         setQuestions(questionsResponse.data.questions);
         setCurrentDifficulty(
-          questionsResponse.data.currentDifficulty || "easy"
+          questionsResponse.data.currentDifficulty || "easy",
         );
         setServerQuestionNumber(
-          questionsResponse.data.currentQuestionNumber || 1
+          questionsResponse.data.currentQuestionNumber || 1,
         );
         handle.enter();
-        
+
         dispatch(setIsTestStarted(true));
-        dispatch(setStarted(true)); // FIXED: Use the imported action
+        dispatch(setStarted(true));
         setLoading(false);
       }
     } catch (error: any) {
       setLoading(false);
+
+      // CHECK IF ERROR IS DUE TO BLOCKED APPLICANT
+      if (
+        error.response?.status === 403 &&
+        error.response?.data?.message === "APPLICANT_BLOCKED"
+      ) {
+        console.log("🚫 Applicant is permanently blocked");
+        setIsBlocked(true);
+        return;
+      }
+
       toast.error("Failed to start test. Please try again.");
     } finally {
       setIsStartingTest(false);
@@ -259,12 +375,15 @@ const AITestPage = () => {
   };
 
   const handleOptionSelect = (questionId: string, optionId: string) => {
+    if (isBlocked) return; 
     const currentQuestion = questions[currentQuestionIndex];
     if (!currentQuestion?.editable) return;
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
   };
 
   const handleNextQuestion = async () => {
+    if (isBlocked) return; 
+
     const currentQuestion = questions[currentQuestionIndex];
     const selectedOptionId = answers[currentQuestion.mcq_question.id];
 
@@ -274,7 +393,7 @@ const AITestPage = () => {
     }
 
     try {
-      await axiosInstance.post(
+      await axiosTestInstance.post(
         "/ai-test/answer",
         {
           applicantId,
@@ -282,7 +401,7 @@ const AITestPage = () => {
           questionId: currentQuestion.mcq_question.id,
           selectedOptionId,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       const updatedQuestions = [...questions];
@@ -298,9 +417,9 @@ const AITestPage = () => {
         serverQuestionNumber % 5 === 0 ||
         currentQuestionIndex === questions.length - 1
       ) {
-        const nextSetResponse = await axiosInstance.get(
+        const nextSetResponse = await axiosTestInstance.get(
           `/ai-test/next-set/${applicantId}/${attemptId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
 
         if (nextSetResponse.data.questions?.length > 0) {
@@ -332,7 +451,8 @@ const AITestPage = () => {
     if (
       submittingFinal ||
       submittedRef.current ||
-      handlingSubmissionRef.current
+      handlingSubmissionRef.current ||
+      isBlocked 
     )
       return;
     handlingSubmissionRef.current = true;
@@ -340,10 +460,10 @@ const AITestPage = () => {
     submittedRef.current = true;
 
     try {
-      await axiosInstance.post(
+      await axiosTestInstance.post(
         "/ai-test/evaluate",
         { applicantId, attemptId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       localStorage.removeItem(`timer-${attemptId}`);
       toast.success("Test submitted successfully!");
@@ -354,13 +474,10 @@ const AITestPage = () => {
       handlingSubmissionRef.current = false;
       setSubmittingFinal(false);
     }
-  }, [token, applicantId, attemptId, navigate]);
+  }, [token, applicantId, attemptId, navigate, isBlocked]);
 
-  // ADD THIS: Handler for verification completion
   const handleVerificationComplete = useCallback(() => {
     console.log("✅ Verification complete in AITestPage");
-    // The ProctorModal already dispatches setVerificationComplete
-    // This just confirms it happened
   }, []);
 
   const getDifficultyColor = () => {
@@ -391,6 +508,10 @@ const AITestPage = () => {
 
   const currentQuestion = questions[currentQuestionIndex];
 
+  if (isBlocked) {
+    return <MalpracticeTerminated />;
+  }
+
   return (
     <FullScreen handle={handle} className="test-page-container">
       <Navbar
@@ -409,7 +530,7 @@ const AITestPage = () => {
       <Alerts />
       <ProctorApp
         handleFinalSubmit={handleFinalSubmit}
-        onVerificationComplete={handleVerificationComplete} // FIXED: Pass the handler
+        onVerificationComplete={handleVerificationComplete}
       />
       <div className="test-content-area no-top-space">
         <div className="test-main-wrapper">
@@ -431,7 +552,7 @@ const AITestPage = () => {
               <Loader2 className="loading-spinner" />
             </div>
           ) : !isTestStarted && !submittingFinal ? (
-            // Instructions Screen - Only shown when test not started
+            // Instructions Screen 
             <div className="instructions-content">
               <div className="ai-test-intro">
                 <div className="ai-icon">🤖</div>
@@ -444,10 +565,20 @@ const AITestPage = () => {
 
               <h3>How It Works</h3>
               <ul>
-                <li>The test automatically adjusts difficulty based on your performance</li>
-                <li>Start with foundational questions that match your skill level</li>
-                <li>As you answer correctly, questions become more challenging</li>
-                <li>If you find questions difficult, the test adapts to your comfort level</li>
+                <li>
+                  The test automatically adjusts difficulty based on your
+                  performance
+                </li>
+                <li>
+                  Start with foundational questions that match your skill level
+                </li>
+                <li>
+                  As you answer correctly, questions become more challenging
+                </li>
+                <li>
+                  If you find questions difficult, the test adapts to your
+                  comfort level
+                </li>
                 <li>Total: 30 questions with varying complexity</li>
               </ul>
 
@@ -487,7 +618,10 @@ const AITestPage = () => {
 
               <h3>Submission</h3>
               <ul>
-                <li>After completing 30 MCQ questions, you'll proceed to coding section</li>
+                <li>
+                  After completing 30 MCQ questions, you'll proceed to coding
+                  section
+                </li>
                 <li>Carefully review your code before final submission</li>
                 <li>Once submitted, you cannot make changes</li>
               </ul>
@@ -498,14 +632,15 @@ const AITestPage = () => {
                 disabled={
                   isStartingTest ||
                   attemptCount >= maxAttempts ||
-                  !verificationComplete // This is key - button enabled only after verification
+                  !verificationComplete ||
+                  isBlocked
                 }
               >
                 {isStartingTest ? "Starting..." : "Start Test"}
               </button>
-              
+
               {/* Show waiting message if verification not complete */}
-              {!verificationComplete && !isStartingTest && (
+              {!verificationComplete && !isStartingTest && !isBlocked && (
                 <div className="verification-waiting-message">
                   <Loader2 className="spinning" size={20} />
                   <span>Complete proctor verification to start test...</span>
@@ -520,11 +655,11 @@ const AITestPage = () => {
           ) : (
             currentQuestion && (
               <div className="ai-mcq-container card-style">
-                {/* Question Header with number, difficulty, and progress */}
                 <div className="ai-question-header">
                   <div className="ai-question-info">
                     <div className="ai-question-number">
-                      Question {serverQuestionNumber} <span className="ai-total-questions">/ 30</span>
+                      Question {serverQuestionNumber}{" "}
+                      <span className="ai-total-questions">/ 30</span>
                     </div>
 
                     <div
@@ -539,7 +674,9 @@ const AITestPage = () => {
                     <div className="ai-progress-bar">
                       <div
                         className="ai-progress-fill"
-                        style={{ width: `${(serverQuestionNumber / 30) * 100}%` }}
+                        style={{
+                          width: `${(serverQuestionNumber / 30) * 100}%`,
+                        }}
                       />
                     </div>
                     <div className="ai-progress-text">
@@ -564,20 +701,26 @@ const AITestPage = () => {
                       <div
                         key={opt.id}
                         className={`ai-option-card ${
-                          answers[currentQuestion.mcq_question.id] === opt.id ? "selected" : ""
+                          answers[currentQuestion.mcq_question.id] === opt.id
+                            ? "selected"
+                            : ""
                         }`}
                         onClick={() =>
                           currentQuestion.editable &&
+                          !isBlocked && 
                           handleOptionSelect(
                             currentQuestion.mcq_question.id,
-                            opt.id
+                            opt.id,
                           )
                         }
                       >
                         <div className="ai-option-content">
-                          <div className="ai-option-letter">{String.fromCharCode(65 + idx)}</div>
+                          <div className="ai-option-letter">
+                            {String.fromCharCode(65 + idx)}
+                          </div>
                           <div className="ai-option-text">{opt.optionText}</div>
-                          {answers[currentQuestion.mcq_question.id] === opt.id && (
+                          {answers[currentQuestion.mcq_question.id] ===
+                            opt.id && (
                             <div className="ai-option-selected">✓</div>
                           )}
                         </div>
@@ -590,13 +733,15 @@ const AITestPage = () => {
                       className="ai-next-button"
                       onClick={handleNextQuestion}
                       disabled={
-                        !answers[currentQuestion.mcq_question.id] &&
-                        currentQuestion.status !== "answered"
+                        (!answers[currentQuestion.mcq_question.id] &&
+                          currentQuestion.status !== "answered") ||
+                        isBlocked 
                       }
                     >
-                      {serverQuestionNumber === 30 ? "Complete Test" : "Next Question"}
+                      {serverQuestionNumber === 30
+                        ? "Complete Test"
+                        : "Next Question"}
                     </button>
-                    
                   </div>
                 </div>
               </div>

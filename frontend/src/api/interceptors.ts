@@ -13,7 +13,15 @@ export const addInactiveUserInterceptor = (instance: any) => {
       //  Skip redirect if on reset-password page
       const isResetPasswordPage = currentPath.startsWith("/reset-password");
 
-      if (!isRedirecting && currentPath !== "/login" && !isResetPasswordPage) {
+      const isTestRoute =
+        currentPath.startsWith("/test") || currentPath.startsWith("/ai-test");
+
+      if (
+        !isRedirecting &&
+        currentPath !== "/login" &&
+        !isResetPasswordPage &&
+        !isTestRoute
+      ) {
         if (status === 401) {
           isRedirecting = true;
           localStorage.removeItem("token");
@@ -29,6 +37,6 @@ export const addInactiveUserInterceptor = (instance: any) => {
       }
 
       return Promise.reject(error);
-    }
+    },
   );
 };

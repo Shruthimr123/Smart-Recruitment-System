@@ -19,8 +19,6 @@ axiosTestInstance.interceptors.request.use(
       }
       config.headers.set("Authorization", `Bearer ${token}`);
     }
-
-    // Don't set Content-Type for FormData - browser will set it with boundary
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }
@@ -30,5 +28,4 @@ axiosTestInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// No redirect interceptor for test instance
 export default axiosTestInstance;

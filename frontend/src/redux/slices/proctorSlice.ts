@@ -56,7 +56,7 @@ export const {
   setAlertMessage,
   setIsTestStarted,
   setIsTestCompleted,
-  setMalpracticeCount,
+  setMalpracticeCount, 
   incrementMalpractice,
   setVerificationComplete,
   resetProctorState,

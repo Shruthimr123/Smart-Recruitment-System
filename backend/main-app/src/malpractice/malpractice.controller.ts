@@ -1,6 +1,8 @@
 import {
   Controller,
   Post,
+  Get,
+  Param,
   UploadedFile,
   UseInterceptors,
   Body,
@@ -28,10 +30,8 @@ export class MalpracticeController {
   ) {
     if (!file) throw new BadRequestException('No file uploaded');
 
-    // Fix: Use only allowed folder types - 'profile' or 'alerts'
     const imageUrl = await this.cloudinary.uploadImage(file, 'profile');
 
-    // Parse embedding if provided
     let embeddingArray: number[] | undefined;
     if (body.embedding) {
       try {
@@ -52,6 +52,8 @@ export class MalpracticeController {
       profileImageUrl: result.profileImageUrl,
       applicantId: result.applicant?.id || body.applicantId,
       isExisting: result['isExisting'] || false,
+      totalViolations: result.totalViolations,
+      isBlocked: result.isBlocked,
     };
   }
 
@@ -63,7 +65,6 @@ export class MalpracticeController {
   ) {
     if (!file) throw new BadRequestException('No file uploaded');
 
-    // Parse embedding
     let embeddingArray: number[];
     try {
       embeddingArray = JSON.parse(body.embedding);
@@ -71,7 +72,6 @@ export class MalpracticeController {
       throw new BadRequestException('Invalid embedding format');
     }
 
-    // Upload image to Cloudinary (for audit trail)
     const imageUrl = await this.cloudinary.uploadImage(file, 'alerts');
 
     const result = await this.service.verifyCandidate({
@@ -84,9 +84,12 @@ export class MalpracticeController {
       verified: result.verified,
       similarity: result.similarity,
       verificationImageUrl: imageUrl,
+      totalViolations: result.totalViolations,
+      isBlocked: result.isBlocked,
     };
   }
 
+  //Alert endpoint returns violation status
   @Post('alert')
   @UseInterceptors(FileInterceptor('file'))
   async addAlert(
@@ -104,9 +107,22 @@ export class MalpracticeController {
 
     return {
       success: true,
-      alertId: result.id,
-      applicantId: result.applicant?.id,
-      malpracticeImageUrl: result.malpracticeImageUrl,
+      alertId: result.alert.id,
+      applicantId: result.alert.applicant?.id,
+      malpracticeImageUrl: result.alert.malpracticeImageUrl,
+      totalViolations: result.totalViolations,
+      isBlocked: result.isBlocked,
+      maxReached: result.maxReached,
+    };
+  }
+
+  //Get violation status endpoint
+  @Get('violation-status/:applicantId')
+  async getViolationStatus(@Param('applicantId') applicantId: string) {
+    const result = await this.service.getViolationStatus(applicantId);
+    return {
+      success: true,
+      ...result,
     };
   }
 
@@ -128,9 +144,12 @@ export class MalpracticeController {
 
     return {
       success: true,
-      alertId: result.id,
-      applicantId: result.applicant?.id,
-      malpracticeImageUrl: result.malpracticeImageUrl,
+      alertId: result.alert.id,
+      applicantId: result.alert.applicant?.id,
+      malpracticeImageUrl: result.alert.malpracticeImageUrl,
+      totalViolations: result.totalViolations,
+      isBlocked: result.isBlocked,
+      maxReached: result.maxReached,
     };
   }
 }

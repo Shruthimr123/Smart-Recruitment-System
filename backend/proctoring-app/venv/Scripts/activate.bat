@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\Sam Christopher\Desktop\SRS Project\Smart recruitment system\backend\proctoring-app\venv
+set VIRTUAL_ENV=C:\Users\Sam Christopher\Desktop\github\Smart-Recruitment-System\backend\proctoring-app\venv
 
 if not defined PROMPT set PROMPT=$P$G
 

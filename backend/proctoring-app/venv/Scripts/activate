@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\Sam Christopher\Desktop\SRS Project\Smart recruitment system\backend\proctoring-app\venv"
+VIRTUAL_ENV="C:\Users\Sam Christopher\Desktop\github\Smart-Recruitment-System\backend\proctoring-app\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

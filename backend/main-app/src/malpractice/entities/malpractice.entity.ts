@@ -31,7 +31,6 @@ export class Malpractice {
   @CreateDateColumn({ name: 'timestamp' })
   timestamp: Date;
 
-  // NEW: Store face embedding for verification
   @Column({ type: 'jsonb', nullable: true })
   embedding?: number[];
 }

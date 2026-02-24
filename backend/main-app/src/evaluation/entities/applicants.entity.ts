@@ -34,9 +34,18 @@ export class Applicant {
   @JoinColumn({ name: 'primary_skill_id' })
   primary_skill: Skill;
 
-  @ManyToOne(() => Skill, { nullable: true }) // Add nullable: true
+  @ManyToOne(() => Skill, { nullable: true })
   @JoinColumn({ name: 'secondary_skill_id' })
-  secondary_skill: Skill | null; // Change to Skill | null
+  secondary_skill: Skill | null;
+
+  @Column({ type: 'int', default: 0 })
+  total_violations: number;
+
+  @Column({ type: 'boolean', default: false })
+  is_blocked: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  blocked_at: Date | null;
 
   @OneToMany(() => Malpractice, (malpractice) => malpractice.applicant, {
     cascade: true,

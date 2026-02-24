@@ -51,7 +51,7 @@ export const startTest = createAsyncThunk(
     } catch (err: any) {
       console.error("Error in startTest:", err);
 
-      // Handle maximum attempts error specifically
+      // Handle maximum attempts error 
       if (err.message === "MAXIMUM_ATTEMPTS_EXCEEDED") {
         return thunkAPI.rejectWithValue("MAXIMUM_ATTEMPTS_EXCEEDED");
       }
@@ -106,7 +106,6 @@ export const evaluateTest = createAsyncThunk(
 
       console.log("Evaluation response:", res.data);
 
-      // Mark token as used only after successful evaluation
       try {
         await axiosTestInstance.post(
           "/test/mark-token-used",
