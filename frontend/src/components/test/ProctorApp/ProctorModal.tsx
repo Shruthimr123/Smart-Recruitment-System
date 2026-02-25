@@ -38,7 +38,6 @@ interface FaceDetectionResult {
 
 const ProctorModal: React.FC<ProctorModalProps> = ({
   isOpen,
-  onClose,
   onVerificationSuccess,
   applicantId,
   token,
@@ -70,7 +69,6 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
 
   const checkExistingRegistration = async () => {
     try {
-      // This would ideally check with backend, but for now we'll determine during verification
       setIsExistingProfile(false);
     } catch (error) {
       console.error('Error checking registration:', error);
@@ -475,7 +473,6 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
           >
             <div className="proctor-modal-header">
               <h2>Proctor Verification</h2>
-              <button className="close-button" onClick={onClose}>×</button>
             </div>
 
             <div className="proctor-modal-content">

@@ -15,7 +15,7 @@ export class MalpracticeService {
     private readonly repo: Repository<Malpractice>,
     @InjectRepository(Applicant)
     private readonly applicantRepo: Repository<Applicant>,
-    private readonly dataSource: DataSource, 
+    private readonly dataSource: DataSource,
   ) {}
 
   async registerCandidate(data: {
@@ -109,6 +109,7 @@ export class MalpracticeService {
       where: { applicant: { id: data.applicantId } },
       order: { timestamp: 'ASC' },
     });
+    ``;
 
     if (!storedRecord || !storedRecord.embedding) {
       throw new BadRequestException(
@@ -191,7 +192,7 @@ export class MalpracticeService {
         applicant.blocked_at = new Date();
         maxReached = true;
 
-        // Find and terminate any active test attempt 
+        // Find and terminate any active test attempt
         const activeAttempt = await queryRunner.manager
           .createQueryBuilder('test_attempts', 'attempt')
           .where('attempt.applicant_id = :applicantId', {
@@ -254,13 +255,13 @@ export class MalpracticeService {
       : Math.max(0, 3 - (await this.getAttemptCount(applicantId)));
 
     return {
-      totalViolations: applicant.total_violations,
+      totalViolations: applicant.total_violations, 
       isBlocked: applicant.is_blocked,
       remainingAttempts,
     };
   }
 
-  // Helper: Get attempt count
+  //Get attempt count
   private async getAttemptCount(applicantId: string): Promise<number> {
     const result = await this.dataSource
       .createQueryBuilder()

@@ -7,6 +7,7 @@ interface ProctorState {
   isTestCompleted: boolean;
   malpracticeCount: number;
   verificationComplete: boolean;
+  currentApplicantId: string | null; 
 }
 
 const initialState: ProctorState = {
@@ -16,6 +17,7 @@ const initialState: ProctorState = {
   isTestCompleted: false,
   malpracticeCount: 0,
   verificationComplete: false,
+  currentApplicantId: null,
 };
 
 const proctorSlice = createSlice({
@@ -46,7 +48,23 @@ const proctorSlice = createSlice({
       state.verificationComplete = action.payload;
     },
     resetProctorState(state) {
-      Object.assign(state, initialState);
+      state.capturedImage = null;
+      state.alertMessage = "";
+      state.isTestStarted = false;
+      state.isTestCompleted = false;
+      state.malpracticeCount = 0;
+      state.verificationComplete = false;
+    },
+    setCurrentApplicantId(state, action: PayloadAction<string>) {
+      // If applicant ID changed, reset relevant state
+      if (state.currentApplicantId !== action.payload) {
+        state.malpracticeCount = 0;
+        state.verificationComplete = false;
+        state.capturedImage = null;
+        state.isTestStarted = false;
+        state.isTestCompleted = false;
+      }
+      state.currentApplicantId = action.payload;
     },
   },
 });
@@ -56,10 +74,11 @@ export const {
   setAlertMessage,
   setIsTestStarted,
   setIsTestCompleted,
-  setMalpracticeCount, 
+  setMalpracticeCount,
   incrementMalpractice,
   setVerificationComplete,
   resetProctorState,
+  setCurrentApplicantId,
 } = proctorSlice.actions;
 
 export default proctorSlice.reducer;

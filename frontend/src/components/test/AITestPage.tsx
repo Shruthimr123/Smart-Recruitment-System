@@ -5,8 +5,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
+  resetProctorState,
   incrementMalpractice,
   setIsTestStarted,
+  setCurrentApplicantId,
   setMalpracticeCount,
 } from "../../redux/slices/proctorSlice";
 import { setStarted } from "../../redux/slices/test/testSlice";
@@ -21,6 +23,7 @@ import Navbar from "./ProctorApp/Navbar";
 import ProctorApp from "./ProctorApp/ProctorApp";
 import MalpracticeTerminated from "./ProctorApp/MalpracticeTerminated";
 import { MALPRACTICE_LIMITS } from "../../constants/proctorConstants";
+import axiosInstance from "../../api/axiosInstance";
 
 const formatTime = (sec: number) => {
   const m = Math.floor(sec / 60)
@@ -92,6 +95,61 @@ const AITestPage = () => {
   const submittedRef = useRef(false);
   const timeLeftRef = useRef(timeLeft);
   const startedRef = useRef(isTestStarted);
+
+  //Reset state when applicantId changes
+  useEffect(() => {
+    // Reset proctor state when component mounts or applicantId changes
+    console.log(
+      "🔄 Resetting proctor state for AI test applicant:",
+      applicantId,
+    );
+
+    // Reset Redux state
+    dispatch(resetProctorState());
+
+    // Set current applicant ID in Redux
+    if (applicantId) {
+      dispatch(setCurrentApplicantId(applicantId));
+    }
+
+    // Clear any stored violation data from localStorage
+    localStorage.removeItem(`malpractice-${applicantId}`);
+    localStorage.removeItem(`timer-${attemptId}`);
+
+    // Fetch current violation count from backend
+    const fetchViolationCount = async () => {
+      if (applicantId && token) {
+        try {
+          const response = await axiosInstance.get(
+            `/malpractice/violation-status/${applicantId}`,
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+
+          if (response.data.success) {
+            console.log(
+              "📊 Fetched violation count for AI test:",
+              response.data.totalViolations,
+            );
+            dispatch(setMalpracticeCount(response.data.totalViolations));
+
+            // If already blocked, set blocked state
+            if (response.data.isBlocked) {
+              setIsBlocked(true);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching violation count:", error);
+        }
+      }
+    };
+
+    fetchViolationCount();
+
+    // Cleanup function
+    return () => {
+      // Don't reset on unmount
+    };
+  }, [applicantId, dispatch, token]); 
 
   useEffect(() => {
     startedRef.current = isTestStarted;
@@ -294,7 +352,7 @@ const AITestPage = () => {
   const handleStartTest = async () => {
     // CHECK IF ALREADY BLOCKED
     if (isBlocked) {
-      return; 
+      return;
     }
 
     if (isStartingTest) return;
@@ -375,14 +433,14 @@ const AITestPage = () => {
   };
 
   const handleOptionSelect = (questionId: string, optionId: string) => {
-    if (isBlocked) return; 
+    if (isBlocked) return;
     const currentQuestion = questions[currentQuestionIndex];
     if (!currentQuestion?.editable) return;
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
   };
 
   const handleNextQuestion = async () => {
-    if (isBlocked) return; 
+    if (isBlocked) return;
 
     const currentQuestion = questions[currentQuestionIndex];
     const selectedOptionId = answers[currentQuestion.mcq_question.id];
@@ -452,7 +510,7 @@ const AITestPage = () => {
       submittingFinal ||
       submittedRef.current ||
       handlingSubmissionRef.current ||
-      isBlocked 
+      isBlocked
     )
       return;
     handlingSubmissionRef.current = true;
@@ -552,7 +610,7 @@ const AITestPage = () => {
               <Loader2 className="loading-spinner" />
             </div>
           ) : !isTestStarted && !submittingFinal ? (
-            // Instructions Screen 
+            // Instructions Screen
             <div className="instructions-content">
               <div className="ai-test-intro">
                 <div className="ai-icon">🤖</div>
@@ -707,7 +765,7 @@ const AITestPage = () => {
                         }`}
                         onClick={() =>
                           currentQuestion.editable &&
-                          !isBlocked && 
+                          !isBlocked &&
                           handleOptionSelect(
                             currentQuestion.mcq_question.id,
                             opt.id,
@@ -735,7 +793,7 @@ const AITestPage = () => {
                       disabled={
                         (!answers[currentQuestion.mcq_question.id] &&
                           currentQuestion.status !== "answered") ||
-                        isBlocked 
+                        isBlocked
                       }
                     >
                       {serverQuestionNumber === 30

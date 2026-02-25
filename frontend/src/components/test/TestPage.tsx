@@ -5,9 +5,11 @@ import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
+  resetProctorState,
   incrementMalpractice,
   setIsTestStarted,
-  setMalpracticeCount, 
+  setMalpracticeCount,
+  setCurrentApplicantId,
 } from "../../redux/slices/proctorSlice";
 import "../css/TestPage.css";
 import QuestionBlock from "./QuestionBlock";
@@ -34,6 +36,7 @@ import Alerts from "./ProctorApp/Alerts";
 import Navbar from "./ProctorApp/Navbar";
 import ProctorApp from "./ProctorApp/ProctorApp";
 import MalpracticeTerminated from "./ProctorApp/MalpracticeTerminated";
+import axiosInstance from "../../api/axiosInstance";
 
 const formatTime = (sec: number) => {
   const m = Math.floor(sec / 60)
@@ -80,6 +83,57 @@ const TestPage = () => {
   const { answers, currentIndex, submitted, timeLeft, started, loading } =
     useSelector((state: RootState) => state.test);
 
+  //Reset state when applicantId changes
+  useEffect(() => {
+    // Reset proctor state when component mounts or applicantId changes
+    console.log("🔄 Resetting proctor state for applicant:", applicantId);
+
+    // Reset Redux state
+    dispatch(resetProctorState());
+
+    // Set current applicant ID in Redux
+    if (applicantId) {
+      dispatch(setCurrentApplicantId(applicantId));
+    }
+
+    // Clear any stored violation data from localStorage
+    localStorage.removeItem(`malpractice-${applicantId}`);
+
+    // Fetch current violation count from backend
+    const fetchViolationCount = async () => {
+      if (applicantId && token) {
+        try {
+          const response = await axiosInstance.get(
+            `/malpractice/violation-status/${applicantId}`,
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+
+          if (response.data.success) {
+            console.log(
+              "📊 Fetched violation count:",
+              response.data.totalViolations,
+            );
+            dispatch(setMalpracticeCount(response.data.totalViolations));
+
+            // If already blocked, set blocked state
+            if (response.data.isBlocked) {
+              setIsBlocked(true);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching violation count:", error);
+        }
+      }
+    };
+
+    fetchViolationCount();
+
+    // Cleanup function
+    return () => {
+      // Don't reset on unmount 
+    };
+  }, [applicantId, dispatch, token]); 
+
   // Listen for block events from WebcamCapture
   useEffect(() => {
     const handleBlockEvent = () => {
@@ -92,10 +146,10 @@ const TestPage = () => {
       }
     };
 
-    window.addEventListener('applicant-blocked', handleBlockEvent);
-    
+    window.addEventListener("applicant-blocked", handleBlockEvent);
+
     return () => {
-      window.removeEventListener('applicant-blocked', handleBlockEvent);
+      window.removeEventListener("applicant-blocked", handleBlockEvent);
     };
   }, [dispatch, started]);
 
@@ -107,13 +161,13 @@ const TestPage = () => {
     navigateRef.current = navigate;
   }, [submitted, timeLeft, started, navigate]);
 
-  // Validate token 
+  // Validate token
   useEffect(() => {
     const validateToken = async () => {
       try {
         const response = await axiosTestInstance.get(`/test/start/${token}`);
         console.log("Token validation successful:", response.data);
-        
+
         // If response contains violation info, update Redux
         if (response.data.totalViolations !== undefined) {
           dispatch(setMalpracticeCount(response.data.totalViolations));
@@ -181,7 +235,7 @@ const TestPage = () => {
 
   // Timer decrement
   useEffect(() => {
-    if (!started || submitted || isBlocked) return; 
+    if (!started || submitted || isBlocked) return;
     const timer = setInterval(() => {
       if (!submittedRef.current && startedRef.current) {
         dispatch(decrementTime({ attemptId }));
@@ -198,7 +252,7 @@ const TestPage = () => {
       !submitted &&
       !submittingFinal &&
       !submittedRef.current &&
-      !isBlocked 
+      !isBlocked
     ) {
       handleFinalSubmit();
     }
@@ -206,7 +260,7 @@ const TestPage = () => {
 
   // Malpractice monitoring
   useEffect(() => {
-    if (!started || submitted || isBlocked) return; 
+    if (!started || submitted || isBlocked) return;
 
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) toast.warning("You exited fullscreen.");
@@ -220,7 +274,7 @@ const TestPage = () => {
     };
 
     const beforeUnload = (e: BeforeUnloadEvent) => {
-      if (!submittedRef.current && !isBlocked) { 
+      if (!submittedRef.current && !isBlocked) {
         e.preventDefault();
         e.returnValue = "Are you sure you want to leave?";
         return "Are you sure you want to leave?";
@@ -359,7 +413,10 @@ const TestPage = () => {
       console.error("🔴 Error in handleStartTest:", error);
 
       // Check if applicant is blocked during start attempt
-      if (error.response?.status === 403 && error.response?.data?.message === "APPLICANT_BLOCKED") {
+      if (
+        error.response?.status === 403 &&
+        error.response?.data?.message === "APPLICANT_BLOCKED"
+      ) {
         console.log("🚫 Applicant is permanently blocked");
         setIsBlocked(true);
         return;
@@ -368,7 +425,7 @@ const TestPage = () => {
       // Handle maximum attempts exceeded
       if (error.payload === "MAXIMUM_ATTEMPTS_EXCEEDED") {
         console.log("🔴 Maximum attempts exceeded from API, navigating...");
-        setAttemptCount(maxAttempts); 
+        setAttemptCount(maxAttempts);
         navigate("/attempts-exceeded");
       } else {
         console.error("Error starting test:", error);
@@ -380,7 +437,7 @@ const TestPage = () => {
   };
 
   const handleOptionSelect = (questionId: string, optionId: string) => {
-    if (isBlocked) return; 
+    if (isBlocked) return;
     const question =
       section === "aptitude"
         ? aptitudeQuestions[currentIndex]
@@ -390,7 +447,7 @@ const TestPage = () => {
   };
 
   const handleNext = async () => {
-    if (isBlocked) return; 
+    if (isBlocked) return;
     const activeSet =
       section === "aptitude" ? aptitudeQuestions : technicalQuestions;
     const q = activeSet[currentIndex];
@@ -427,7 +484,7 @@ const TestPage = () => {
   };
 
   const handleSkip = async () => {
-    if (isBlocked) return; 
+    if (isBlocked) return;
     const activeSet =
       section === "aptitude" ? aptitudeQuestions : technicalQuestions;
     const q = activeSet[currentIndex];
@@ -460,7 +517,7 @@ const TestPage = () => {
       submittingFinal ||
       submittedRef.current ||
       handlingSubmissionRef.current ||
-      isBlocked 
+      isBlocked
     )
       return;
     handlingSubmissionRef.current = true;

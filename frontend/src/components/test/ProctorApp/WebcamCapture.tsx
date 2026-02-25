@@ -10,7 +10,7 @@ import axiosTestInstance from "../../../api/axiosTestInstance";
 import {
   setAlertMessage,
   setIsTestStarted,
-  setMalpracticeCount, 
+  setMalpracticeCount,
 } from "../../../redux/slices/proctorSlice";
 import {
   SIMILARITY_THRESHOLDS,
@@ -52,7 +52,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   // Detection loop control
   const detectionActiveRef = useRef<boolean>(false);
 
-  // Refs for current state 
+  // Refs for current state
   const isTestStartedRef = useRef<boolean>(false);
   const isTestCompletedRef = useRef<boolean>(false);
   const malpracticeCountRef = useRef<number>(0);
@@ -125,7 +125,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       // Perform one detection cycle
       await performLiveDetection();
 
-      // Wait 3 seconds before next detection 
+      // Wait 3 seconds before next detection
       if (detectionActiveRef.current) {
         await wait(3000);
       }
@@ -238,7 +238,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         console.log(`⚠️ Face mismatch (explicit status)!`);
         await handleViolation("Face mismatch detected", file);
       }
-      // CASE 4: Verified true 
+      // CASE 4: Verified true
       else if (verified) {
         console.log(`✅ Face verified: ${similarity}`);
 
@@ -249,7 +249,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
           await handleViolation("Face mismatch detected", file);
         }
       }
-      // CASE 5: Verified is false 
+      // CASE 5: Verified is false
       else if (!verified) {
         console.log(
           `⚠️ Face mismatch (verified=false) - similarity: ${similarity}`,
@@ -271,7 +271,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
     message: string,
     file: File,
   ): Promise<void> => {
-    // Check if we've already reached the limit
+    // Check if we've already reached the limit 
     if (malpracticeCountRef.current >= MALPRACTICE_LIMITS.MAX_COUNT) {
       console.log("⚠️ Already at max violations, not incrementing further");
       return;
@@ -293,8 +293,10 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      // Show alert FIRST
       dispatch(setAlertMessage(`⚠️ ${message}`));
 
+      // THEN set the violation count from backend response
       dispatch(setMalpracticeCount(response.data.totalViolations));
 
       console.log(
@@ -308,6 +310,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         );
         dispatch(setIsTestStarted(false));
 
+        // Dispatch block event
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("applicant-blocked"));
         }
