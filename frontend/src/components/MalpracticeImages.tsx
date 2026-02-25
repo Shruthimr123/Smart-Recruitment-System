@@ -1,5 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, XCircle } from "lucide-react";
+import {
+  Loader2,
+  XCircle,
+  AlertTriangle,
+  Camera,
+  User,
+  Calendar,
+  Mail,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Image as ImageIcon,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
@@ -11,15 +24,21 @@ interface MalpracticeImage {
   profileImageUrl: string;
   malpracticeImageUrl?: string;
   alertMessage?: string;
+  confidence?: number;
 }
 
 interface Candidate {
   id: string;
   name: string;
   email: string;
+  profileImage?: string;
+  registeredFace?: string;
   malpractice: MalpracticeImage[];
   test_attempts: Array<{
     test_status: string;
+    start_time?: string;
+    end_time?: string;
+    score?: number;
   }>;
 }
 
@@ -33,6 +52,8 @@ const MalpracticeImages = () => {
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedViolationType, setSelectedViolationType] =
+    useState<string>("all");
 
   const {
     data: candidate,
@@ -41,14 +62,81 @@ const MalpracticeImages = () => {
   } = useQuery({
     queryKey: ["dashboard", id],
     queryFn: () => fetchApplicantData(id as string),
-    enabled: !!id, 
-    refetchInterval: 30000, 
+    enabled: !!id,
   });
+
+  // Separate registered face and violation records
+  const registeredFace =
+    candidate?.malpractice?.find((m: MalpracticeImage) => !m.alertMessage)
+      ?.profileImageUrl || null;
+
+  const violationImages =
+    candidate?.malpractice?.filter((m: MalpracticeImage) => !!m.alertMessage) ||
+    [];
 
   // Format timestamp
   const formatTimestamp = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString();
+    return new Date(timestamp).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
+
+  // Get violation counts
+  const getViolationStats = () => {
+    const images = violationImages;
+    const stats: Record<string, number> = {
+      total: images.length,
+      faceNotDetected: 0,
+      faceMismatch: 0,
+      multipleFacesDetected: 0,
+      tabSwitch: 0,
+      fullscreenExit: 0,
+    };
+
+    images.forEach((img: MalpracticeImage) => {
+      const msg = img.alertMessage?.toLowerCase() || "";
+      if (msg.includes("face not detected")) stats.faceNotDetected++;
+      else if (msg.includes("face mismatch")) stats.faceMismatch++;
+      else if (msg.includes("multiple faces detected"))
+        stats.multipleFacesDetected++;
+      else if (msg.includes("tab switch")) stats.tabSwitch++;
+      else if (msg.includes("fullscreen exit")) stats.fullscreenExit++;
+    });
+
+    return stats;
+  };
+
+  const violationStats = getViolationStats();
+
+  // Filter images by violation type
+  const getFilteredImages = () => {
+    if (selectedViolationType === "all") return violationImages;
+
+    return (candidate?.malpractice || []).filter((img: MalpracticeImage) => {
+      const msg = img.alertMessage?.toLowerCase() || "";
+      switch (selectedViolationType) {
+        case "faceNotDetected":
+          return msg.includes("face not detected");
+        case "faceMismatch":
+          return msg.includes("face mismatch");
+        case "multipleFacesDetected":
+          return msg.includes("multiple faces detected");
+        case "tabSwitch":
+          return msg.includes("tab switch");
+        case "fullscreenExit":
+          return msg.includes("fullscreen exit");
+        default:
+          return true;
+      }
+    });
+  };
+
+  const filteredImages = getFilteredImages();
 
   // Handle image modal
   const openImageModal = (imageUrl: string, index: number) => {
@@ -61,7 +149,7 @@ const MalpracticeImages = () => {
   };
 
   const navigateImage = (direction: string) => {
-    const images = candidate?.malpractice || [];
+    const images = filteredImages;
     let newIndex;
 
     if (direction === "next") {
@@ -92,13 +180,14 @@ const MalpracticeImages = () => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [selectedImage, currentImageIndex]);
+  }, [selectedImage, currentImageIndex, filteredImages]);
 
   if (isLoading) {
     return (
       <div className="malpractice-loading">
         <div className="loading-spinner">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p>Loading candidate data...</p>
         </div>
       </div>
     );
@@ -108,7 +197,9 @@ const MalpracticeImages = () => {
     return (
       <div className="malpractice-error">
         <div className="error-content">
-          <XCircle className="h-8 w-8 text-red-600" />
+          <XCircle className="h-12 w-12 text-red-600" />
+          <h3>Error Loading Data</h3>
+          <p>There was a problem fetching the candidate information.</p>
           <button onClick={() => navigate("/results")} className="back-button">
             Back to Results
           </button>
@@ -121,7 +212,8 @@ const MalpracticeImages = () => {
     return (
       <div className="malpractice-error">
         <div className="error-content">
-          <h3>Candidate not found</h3>
+          <User className="h-12 w-12 text-gray-400" />
+          <h3>Candidate Not Found</h3>
           <p>The requested candidate could not be found.</p>
           <button onClick={() => navigate("/results")} className="back-button">
             Back to Results
@@ -131,127 +223,234 @@ const MalpracticeImages = () => {
     );
   }
 
-  const malpracticeImages = candidate.malpractice || [];
-
   return (
     <div className="malpractice-container">
-      {/* Header */}
-      <button onClick={() => navigate("/results")} className="back-button">
-        ← Back to Results
-      </button>
+      {/* Header with Navigation */}
       <div className="malpractice-header">
+        <div className="header-top">
+          <button onClick={() => navigate("/results")} className="back-button">
+            <ChevronLeft className="h-4 w-4" />
+            Back to Results
+          </button>
+        </div>
+
         <div className="header-content">
-          <div className="malpractice-title">
-            <h1>Proctoring Images - {candidate.name}</h1>
-            <div className="image-count">
-              {malpracticeImages.length}{" "}
-              {malpracticeImages.length === 1 ? "Image" : "Images"} Captured
+          <div className="candidate-title-section">
+            <h1>Proctoring Review</h1>
+            <p>Review candidate's assessment session and violation history</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Candidate Overview Card */}
+      <div className="candidate-overview">
+        <div className="overview-card">
+          <div className="registered-face-section">
+            <h3>
+              <Camera className="h-5 w-5" />
+              Registered Face
+            </h3>
+            <div className="registered-face-container">
+              <img
+                src={
+                  registeredFace ||
+                  "https://placehold.co/400x400/3b82f6/white?text=No+Face"
+                }
+                alt="Registered face"
+                className="registered-face-image"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src =
+                    "https://placehold.co/400x400/3b82f6/white?text=No+Face";
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="candidate-details">
+            <div className="details-header">
+              <h2>{candidate.name}</h2>
+              <span className="test-status-badge">
+                {candidate.test_attempts[0]?.test_status || "N/A"}
+              </span>
+            </div>
+
+            <div className="details-grid">
+              <div className="detail-item">
+                <Mail className="h-4 w-4" />
+                <span>{candidate.email}</span>
+              </div>
+              <div className="detail-item">
+                <Calendar className="h-4 w-4" />
+                <span>ID: {candidate.id}</span>
+              </div>
+              {candidate.test_attempts[0]?.start_time && (
+                <div className="detail-item">
+                  <Clock className="h-4 w-4" />
+                  <span>
+                    Started:{" "}
+                    {formatTimestamp(candidate.test_attempts[0].start_time)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Violation Stats */}
+            <div className="violation-stats">
+              <h4>Violation Summary</h4>
+              <div className="stats-grid">
+                <div className="stat-card total">
+                  <span className="stat-value">{violationStats.total}</span>
+                  <span className="stat-label">Total Violations</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-value">
+                    {violationStats.faceNotDetected}
+                  </span>
+                  <span className="stat-label">Face Not Detected</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-value">
+                    {violationStats.faceMismatch}
+                  </span>
+                  <span className="stat-label">Face Mismatch</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-value">
+                    {violationStats.multipleFacesDetected}
+                  </span>
+                  <span className="stat-label">Multiple Faces</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-value">{violationStats.tabSwitch}</span>
+                  <span className="stat-label">Tab Switches</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-value">
+                    {violationStats.fullscreenExit}
+                  </span>
+                  <span className="stat-label">Fullscreen Exits</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Candidate Info */}
-      <div className="candidate-info">
-        <div className="info-card">
-          <div className="info-item">
-            <label>Candidate:</label>
-            <span>{candidate.name}</span>
-          </div>
-          <div className="info-item">
-            <label>Email:</label>
-            <span>{candidate.email}</span>
-          </div>
-          <div className="info-item">
-            <label>Test Status:</label>
-            <span className="test-status">
-              {candidate.test_attempts[0]?.test_status || "N/A"}
-            </span>
-          </div>
-          <div className="info-item">
-            <label>Images Captured:</label>
-            <span className="image-count-badge">
-              {malpracticeImages.length}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Images Content */}
-      {malpracticeImages.length === 0 ? (
-        <div className="no-images">
-          <div className="no-images-content">
-            <div className="no-images-icon">📷</div>
-            <h3>No Images Captured</h3>
+      {/* Malpractice Images Section */}
+      <div className="malpractice-section">
+        <div className="section-header">
+          <div className="section-title">
+            <h2>Violation Images</h2>
             <p>
-              No proctoring images were captured for this candidate during the
-              assessment.
+              {filteredImages.length}{" "}
+              {filteredImages.length === 1 ? "image" : "images"} captured during
+              assessment
             </p>
           </div>
-        </div>
-      ) : (
-        <div className="images-content">
-          <div className="images-header">
-            <h2>Captured Images Timeline</h2>
-            <p>Images captured during the assessment session</p>
-          </div>
 
+          {/* Filter Dropdown */}
+          <div className="filter-container">
+            <select
+              value={selectedViolationType}
+              onChange={(e) => setSelectedViolationType(e.target.value)}
+              className="filter-select"
+            >
+              <option value="all">All Violations</option>
+              <option value="faceNotDetected">Face Not Detected</option>
+              <option value="faceMismatch">Face Mismatch</option>
+              <option value="multipleFacesDetected">Multiple Faces</option>
+              <option value="tabSwitch">Tab Switch</option>
+              <option value="fullscreenExit">Fullscreen Exit</option>
+            </select>
+          </div>
+        </div>
+
+        {filteredImages.length === 0 ? (
+          <div className="no-images">
+            <ImageIcon className="h-16 w-16 text-gray-300" />
+            <h3>No Violation Images</h3>
+            <p>No proctoring violations were detected for this candidate.</p>
+          </div>
+        ) : (
           <div className="images-grid">
-            {malpracticeImages.map((malpractice: MalpracticeImage, index: number) => (
-              <div key={malpractice.id} className="image-card">
-                <div className="image-header">
-                  <div className="image-number">Image #{index + 1}</div>
-                  <div className="image-timestamp">
-                    {formatTimestamp(malpractice.timestamp)}
+            {filteredImages.map(
+              (malpractice: MalpracticeImage, index: number) => (
+                <div key={malpractice.id} className="violation-card">
+                  <div className="violation-card-header">
+                    <div className="violation-number">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>Violation #{index + 1}</span>
+                    </div>
+                    <div className="violation-time">
+                      {formatTimestamp(malpractice.timestamp)}
+                    </div>
                   </div>
+
+                  <div className="violation-images">
+                    <div className="violation-image-container">
+                      <img
+                        src={malpractice.profileImageUrl}
+                        alt={`Violation ${index + 1}`}
+                        className="violation-image"
+                        onClick={() =>
+                          openImageModal(malpractice.profileImageUrl, index)
+                        }
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src =
+                            "https://placehold.co/400x300/ef4444/white?text=Failed+to+Load";
+                        }}
+                      />
+                      {malpractice.malpracticeImageUrl && (
+                        <div className="additional-badge">Additional</div>
+                      )}
+                    </div>
+
+                    {malpractice.malpracticeImageUrl && (
+                      <div className="violation-image-container additional">
+                        <img
+                          src={malpractice.malpracticeImageUrl}
+                          alt={`Additional view ${index + 1}`}
+                          className="violation-image additional"
+                          onClick={() =>
+                            openImageModal(
+                              malpractice.malpracticeImageUrl!,
+                              index,
+                            )
+                          }
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src =
+                              "https://placehold.co/400x300/3b82f6/white?text=Additional+Image";
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {malpractice.alertMessage && (
+                    <div className="violation-alert">
+                      <AlertTriangle className="h-4 w-4" />
+                      <div className="alert-content">
+                        <span className="alert-label">Alert:</span>
+                        <span className="alert-message">
+                          {malpractice.alertMessage}
+                        </span>
+                      </div>
+                      {malpractice.confidence && (
+                        <span className="confidence-badge">
+                          {Math.round(malpractice.confidence * 100)}% confidence
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
-
-                <div className="image-container">
-                  <img
-                    src={malpractice.profileImageUrl}
-                    alt={`Proctoring image ${index + 1} for ${candidate.name}`}
-                    className="proctoring-image"
-                    onClick={() =>
-                      openImageModal(malpractice.profileImageUrl, index)
-                    }
-                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                      const next = target.nextSibling as HTMLElement | null; 
-                      if (next) next.style.display = "flex"; 
-                    }}
-                  />
-                  <div className="image-error" style={{ display: "none" }}>
-                    <div className="error-icon">⚠️</div>
-                    <p>Image failed to load</p>
-                  </div>
-                </div>
-
-                {malpractice.alertMessage && (
-                  <div className="alert-message">
-                    <div className="alert-icon">⚠️</div>
-                    <p>{malpractice.alertMessage}</p>
-                  </div>
-                )}
-
-                {malpractice.malpracticeImageUrl && (
-                  <div className="malpractice-image-container">
-                    <h4>Additional Image:</h4>
-                    <img
-                      src={malpractice.malpracticeImageUrl}
-                      alt={`Additional proctoring image ${index + 1}`}
-                      className="additional-image"
-                      onClick={() =>
-                        openImageModal(malpractice.malpracticeImageUrl!, index)
-                      }
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+              ),
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Image Modal */}
       {selectedImage && (
@@ -259,10 +458,19 @@ const MalpracticeImages = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="modal-title">
-                Image {currentImageIndex + 1} of {malpracticeImages.length}
+                <span>
+                  Violation Image {currentImageIndex + 1} of{" "}
+                  {filteredImages.length}
+                </span>
+                {filteredImages[currentImageIndex]?.alertMessage && (
+                  <span className="modal-violation-badge">
+                    <AlertTriangle className="h-3 w-3" />
+                    {filteredImages[currentImageIndex].alertMessage}
+                  </span>
+                )}
               </div>
               <button className="close-button" onClick={closeImageModal}>
-                ✕
+                <X className="h-5 w-5" />
               </button>
             </div>
 
@@ -270,42 +478,34 @@ const MalpracticeImages = () => {
               <button
                 className="nav-button prev-button"
                 onClick={() => navigateImage("prev")}
-                disabled={malpracticeImages.length <= 1}
+                disabled={filteredImages.length <= 1}
               >
-                ‹
+                <ChevronLeft className="h-6 w-6" />
               </button>
 
               <img
                 src={selectedImage}
-                alt={`Proctoring image ${currentImageIndex + 1}`}
+                alt={`Violation ${currentImageIndex + 1}`}
                 className="modal-image"
               />
 
               <button
                 className="nav-button next-button"
                 onClick={() => navigateImage("next")}
-                disabled={malpracticeImages.length <= 1}
+                disabled={filteredImages.length <= 1}
               >
-                ›
+                <ChevronRight className="h-6 w-6" />
               </button>
             </div>
 
-            <div className="modal-info">
+            <div className="modal-footer">
               <div className="modal-timestamp">
-                {formatTimestamp(
-                  malpracticeImages[currentImageIndex]?.timestamp
-                )}
+                <Clock className="h-4 w-4" />
+                {formatTimestamp(filteredImages[currentImageIndex]?.timestamp)}
               </div>
-              {malpracticeImages[currentImageIndex]?.alertMessage && (
-                <div className="modal-alert">
-                  <span className="alert-icon">⚠️</span>
-                  {malpracticeImages[currentImageIndex].alertMessage}
-                </div>
-              )}
-            </div>
-
-            <div className="modal-instructions">
-              <p>Use arrow keys to navigate • Press ESC to close</p>
+              <div className="modal-instructions">
+                Use arrow keys to navigate • Press ESC to close
+              </div>
             </div>
           </div>
         </div>

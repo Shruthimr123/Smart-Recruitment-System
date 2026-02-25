@@ -14,7 +14,9 @@ export const addInactiveUserInterceptor = (instance: any) => {
       const isResetPasswordPage = currentPath.startsWith("/reset-password");
 
       const isTestRoute =
-        currentPath.startsWith("/test") || currentPath.startsWith("/ai-test");
+        currentPath.startsWith("/test") ||
+        currentPath.startsWith("/ai-test") ||
+        currentPath.startsWith("/thank-you");
 
       if (
         !isRedirecting &&

@@ -63,14 +63,14 @@ const ApplicantDetails = () => {
 
   // Calculate metrics using same logic as Dashboard
   const currentTime = new Date();
-  const testAttempt = candidate.test_attempts[0];
+  const testAttempt = candidate.test_attempts?.[0];
   const mcqScore = testAttempt?.mcq_score || 0;
   const totalMcqQuestions = 30;
 
   // Test status logic
   let testStatus = "pending";
   if (testAttempt) {
-    const token = testAttempt.test_access_tokens[0];
+    const token = testAttempt?.test_access_tokens?.[0];
     const isExpired =
       token &&
       new Date(token.expires_at) < currentTime &&
