@@ -15,18 +15,14 @@ export class AITestSessionEntity {
   @Column()
   currentDifficulty: 'easy' | 'medium' | 'hard';
  
-  // ⚠️ kept for backward compatibility (first 5 batch tracking)
   @Column({ default: 0 })
   questionsInCurrentSet: number;
  
   @Column({ default: 0 })
   totalQuestionsAnswered: number;
  
-  // ⚠️ kept for backward compatibility (first 5 batch scoring)
   @Column({ default: 0 })
   currentSetScore: number;
- 
-  // 🆕 Sliding window buffer (stores last 5 answer results)
  
   @Column({ type: 'jsonb', nullable: true })
   lastFiveResults: {

@@ -15,7 +15,6 @@ import LinkExpired from "./components/LinkExpired";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import MalpracticeImages from "./components/MalpracticeImages";
-import McqResult from "./components/ManualMcqResult";
 import NotFound from "./components/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Results from "./components/Results";

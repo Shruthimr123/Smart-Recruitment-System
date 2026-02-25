@@ -36,4 +36,7 @@ export class ApplicantQuestion {
 
   @Column({ type: 'boolean', default: false })
   is_preview: boolean;
+  
+  @Column()
+  question_order: number;
 }

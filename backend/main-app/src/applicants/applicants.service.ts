@@ -37,7 +37,7 @@ export class ApplicantsService {
 
     @InjectRepository(Problem)
     private readonly problemRepo: Repository<Problem>,
-  ) {}
+  ) { }
 
   async applicantResult() {
     // Step 1: Get applicants
@@ -133,6 +133,7 @@ export class ApplicantsService {
       )
       .leftJoinAndSelect('aa.selected_option', 'selectedOption')
       .where('aq.applicant_id = :applicantId', { applicantId })
+      .orderBy('aq.question_order', 'ASC')
       .getMany();
 
     return applicantQuestions.map((aq: any) => ({
@@ -147,10 +148,10 @@ export class ApplicantsService {
       status: aq.status,
       selectedOption: aq.answer?.selected_option
         ? {
-            id: aq.answer.selected_option.id,
-            text: aq.answer.selected_option.optionText,
-            isCorrect: aq.answer.selected_option.isCorrect,
-          }
+          id: aq.answer.selected_option.id,
+          text: aq.answer.selected_option.optionText,
+          isCorrect: aq.answer.selected_option.isCorrect,
+        }
         : null,
     }));
   }
@@ -204,11 +205,11 @@ export class ApplicantsService {
         },
         problem: problem
           ? {
-              key: problem.key,
-              title: problem.title,
-              description: problem.description,
-              difficulty: problem.difficulty,
-            }
+            key: problem.key,
+            title: problem.title,
+            description: problem.description,
+            difficulty: problem.difficulty,
+          }
           : null,
       };
     });

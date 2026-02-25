@@ -22,7 +22,8 @@ export class AuthService {
   ) { }
 
   async login(loginDto: LoginDto) {
-    const { email, password } = loginDto;
+    const email = loginDto.email.trim().toLowerCase();
+    const { password } = loginDto;
 
     const user = await this.userRepo.findOne({
       where: { email },
@@ -65,8 +66,6 @@ export class AuthService {
       token,
     };
   }
-
-
   async getCurrentUserStatus(email: string) {
     const user = await this.userRepo.findOne({ where: { email: email } });
     return user?.status;

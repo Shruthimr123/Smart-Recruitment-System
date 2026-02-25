@@ -560,15 +560,29 @@ export class AITestService {
 
     const questions = await query.orderBy('RANDOM()').limit(count).getMany();
 
+    //  get how many questions already assigned for this attempt
+    const existingCount = await this.applicantQuestionRepo.count({
+      where: {
+        applicant: { id: applicantId },
+        test_attempt: { id: attemptId },
+      },
+    });
 
+    let orderCounter = existingCount;
+
+    // save question_order
     for (const question of questions) {
+      orderCounter++;
+
       const applicantQuestion = this.applicantQuestionRepo.create({
         applicant: { id: applicantId },
         test_attempt: { id: attemptId },
         mcq_question: question,
         status: 'not_visited',
         is_preview: false,
+        question_order: orderCounter,
       });
+
       await this.applicantQuestionRepo.save(applicantQuestion);
     }
 
@@ -582,7 +596,7 @@ export class AITestService {
       .andWhere('mcq_question.id IN (:...questionIds)', {
         questionIds: questions.map((q) => q.id),
       })
-      .orderBy('aq.id', 'ASC')
+      .orderBy('aq.question_order', 'ASC')
       .getMany();
 
     return savedQuestions.map((aq) => ({
@@ -599,7 +613,7 @@ export class AITestService {
       },
     }));
   }
-
+  
   async saveAnswer(
     applicantId: string,
     attemptId: string,
