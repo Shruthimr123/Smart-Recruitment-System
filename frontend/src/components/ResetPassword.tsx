@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import "./css/Login.css";
 import { toast } from "sonner";
+import PasswordInput from "./PasswordInput";
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -13,8 +14,8 @@ const ResetPassword: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [touched, setTouched] = useState(false);
-  const [tokenValid, setTokenValid] = useState(true); 
+  // const [touched, setTouched] = useState(false);
+  const [tokenValid, setTokenValid] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,8 +67,7 @@ const ResetPassword: React.FC = () => {
         <h2>Reset Password</h2>
 
         <form className="login-form" onSubmit={handleSubmit}>
-          <input
-            type="password"
+          <PasswordInput
             name="password"
             placeholder="Enter new password"
             value={password}
@@ -76,18 +76,15 @@ const ResetPassword: React.FC = () => {
             disabled={!tokenValid}
           />
 
-          <input
-            type="password"
+          <PasswordInput
             name="confirmPassword"
             placeholder="Confirm new password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            onBlur={() => setTouched(true)}
             required
             disabled={!tokenValid}
           />
-
-          {(touched && password !== confirmPassword) || error ? (
+          {(password && confirmPassword && password !== confirmPassword) || error ? (
             <p style={{ color: "red", fontSize: "14px" }}>
               {error || "Passwords do not match!"}
             </p>
@@ -97,11 +94,11 @@ const ResetPassword: React.FC = () => {
             {loading ? "Resetting..." : "Reset Password"}
           </button>
 
-           {!tokenValid && (
-          <p style={{ color: "red", marginBottom: "15px" }}>
-            This reset link is no longer valid or has expired.
-          </p>
-        )}
+          {!tokenValid && (
+            <p style={{ color: "red", marginBottom: "15px" }}>
+              This reset link is no longer valid or has expired.
+            </p>
+          )}
         </form>
       </div>
     </div>
