@@ -6,6 +6,7 @@ import { loginUser } from "../redux/slices/authSlice";
 import type { RootState } from "../redux/store";
 import placeholder from "../assets/add-user-placeholder.png";
 import "./css/Login.css";
+import PasswordInput from "../components/PasswordInput";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -52,8 +53,7 @@ const Login: React.FC = () => {
             onChange={handleChange}
             required
           />
-          <input
-            type="password"
+          <PasswordInput
             name="password"
             placeholder="Password"
             value={formData.password}
