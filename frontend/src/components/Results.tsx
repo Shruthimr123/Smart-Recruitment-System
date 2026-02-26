@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import "./css/Results.css";
-
+import { useLocation } from "react-router-dom";
 const fetchDashboardData = async () => {
   const { data } = await axiosInstance.get("/dashboard");
   return data;
@@ -28,7 +28,7 @@ interface Candidate {
     is_submitted: boolean;
     test_status: string;
     created_at?: string;
-     mcq_mode?: string;
+    mcq_mode?: string;
     test_access_tokens: Array<{
       expires_at: string;
     }>;
@@ -44,12 +44,15 @@ interface Candidate {
 const Results = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState("name");
-  const [filterStatus, setFilterStatus] = useState("all");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const location = useLocation();
+  const [filterStatus, setFilterStatus] = useState(
+    location.state?.filterStatus || "all"
+  );
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["dashboard"],
@@ -119,8 +122,8 @@ const Results = () => {
         const candidateDate = candidate.created_at
           ? new Date(candidate.created_at)
           : candidate.test_attempts[0]?.created_at
-          ? new Date(candidate.test_attempts[0].created_at)
-          : new Date();
+            ? new Date(candidate.test_attempts[0].created_at)
+            : new Date();
         return candidateDate >= start && candidateDate <= end;
       });
     }
@@ -171,14 +174,14 @@ const Results = () => {
           const aPassedTests =
             a.submissions.length > 0
               ? a.submissions[0].testResults?.filter(
-                  (tr: { passed: boolean }) => tr.passed
-                ).length || 0
+                (tr: { passed: boolean }) => tr.passed
+              ).length || 0
               : 0;
           const bPassedTests =
             b.submissions.length > 0
               ? b.submissions[0].testResults?.filter(
-                  (tr: { passed: boolean }) => tr.passed
-                ).length || 0
+                (tr: { passed: boolean }) => tr.passed
+              ).length || 0
               : 0;
           return bPassedTests - aPassedTests;
         case "skill":
@@ -250,6 +253,11 @@ const Results = () => {
       </div>
     );
   }
+  
+  const changePage = (page: number | ((prev: number) => number)) => {
+    setCurrentPage(page as any);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="results-container">
@@ -306,9 +314,8 @@ const Results = () => {
             <div className="date-picker-container">
               <button
                 type="button"
-                className={`calendar-button ${
-                  startDate && endDate ? "active" : ""
-                }`}
+                className={`calendar-button ${startDate && endDate ? "active" : ""
+                  }`}
                 onClick={() => setShowDatePicker(!showDatePicker)}
                 title={
                   startDate && endDate
@@ -386,7 +393,7 @@ const Results = () => {
           </thead>
           <tbody>
             {paginatedCandidates.map((candidate: Candidate) => {
-               const totalMcqQuestions = 30;
+              const totalMcqQuestions = 30;
 
               const codingSubmission = candidate.submissions[0];
               const passedTests =
@@ -396,9 +403,9 @@ const Results = () => {
               const totalTests = codingSubmission?.testResults?.length || 0;
 
               const testAttempt = candidate.test_attempts[0];
-              const mcqMode = testAttempt?.mcq_mode || "manual"; 
+              const mcqMode = testAttempt?.mcq_mode || "manual";
 
-  const mcqScore = testAttempt?.mcq_score || 0; 
+              const mcqScore = testAttempt?.mcq_score || 0;
               let testStatus = "pending";
 
               if (testAttempt) {
@@ -455,22 +462,20 @@ const Results = () => {
                   </td>
                   <td>
                     <span
-                      className={`score-badge ${
-                        mcqScore > 20 ? "score-pass" : "score-fail"
-                      }`}
+                      className={`score-badge ${mcqScore > 20 ? "score-pass" : "score-fail"
+                        }`}
                     >
                       {mcqScore}/{totalMcqQuestions}
                     </span>
                   </td>
                   <td>
                     <span
-                      className={`score-badge ${
-                        passedTests > 0
-                          ? "score-pass"
-                          : totalTests > 0
+                      className={`score-badge ${passedTests > 0
+                        ? "score-pass"
+                        : totalTests > 0
                           ? "score-fail"
                           : "score-pending"
-                      }`}
+                        }`}
                     >
                       {passedTests}/{totalTests}
                     </span>
@@ -484,17 +489,16 @@ const Results = () => {
                   </td>
                   <td>
                     <span
-                      className={`status-badge ${
-                        testStatus === "completed"
-                          ? "status-complete"
-                          : testStatus === "attending"
+                      className={`status-badge ${testStatus === "completed"
+                        ? "status-complete"
+                        : testStatus === "attending"
                           ? "status-progress"
                           : testStatus === "attempts-exceeded"
-                          ? "status-attempts-exceeded"
-                          : testStatus === "expired"
-                          ? "status-expired"
-                          : "status-pending"
-                      }`}
+                            ? "status-attempts-exceeded"
+                            : testStatus === "expired"
+                              ? "status-expired"
+                              : "status-pending"
+                        }`}
                     >
                       {testStatus === "attempts-exceeded"
                         ? "attempts exceeded"
@@ -529,90 +533,72 @@ const Results = () => {
             })}
           </tbody>
         </table>
-        <div className="pagination-container">
-          <div className="pagination-info">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(
-              currentPage * itemsPerPage,
-              filteredAndSortedCandidates.length
-            )}{" "}
-            of {filteredAndSortedCandidates.length} entries
-          </div>
+        <div className="pagination-controls">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => changePage(1)}
+            className="pagination-btn pagination-first"
+            title="First Page"
+          >
+            &laquo;
+          </button>
 
-          <div className="pagination-controls">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(1)}
-              className="pagination-btn pagination-first"
-              title="First Page"
-            >
-              &laquo;
-            </button>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => changePage((prev: number) => prev - 1)}
+            className="pagination-btn pagination-prev"
+            title="Previous Page"
+          >
+            &lsaquo;
+          </button>
 
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => prev - 1)}
-              className="pagination-btn pagination-prev"
-              title="Previous Page"
-            >
-              &lsaquo;
-            </button>
-
-            {[...Array(totalPages)].map((_, index) => {
-              const pageNumber = index + 1;
-              if (
-                pageNumber === 1 ||
-                pageNumber === totalPages ||
-                (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
-              ) {
-                return (
-                  <button
-                    key={pageNumber}
-                    onClick={() => setCurrentPage(pageNumber)}
-                    className={`pagination-btn pagination-number ${
-                      currentPage === pageNumber ? "pagination-active" : ""
+          {[...Array(totalPages)].map((_, index) => {
+            const pageNumber = index + 1;
+            if (
+              pageNumber === 1 ||
+              pageNumber === totalPages ||
+              (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+            ) {
+              return (
+                <button
+                  key={pageNumber}
+                  onClick={() => changePage(pageNumber)}
+                  className={`pagination-btn pagination-number ${currentPage === pageNumber ? "pagination-active" : ""
                     }`}
-                  >
-                    {pageNumber}
-                  </button>
-                );
-              } else if (
-                pageNumber === currentPage - 2 ||
-                pageNumber === currentPage + 2
-              ) {
-                return (
-                  <span key={pageNumber} className="pagination-ellipsis">
-                    ...
-                  </span>
-                );
-              }
-              return null;
-            })}
+                >
+                  {pageNumber}
+                </button>
+              );
+            } else if (
+              pageNumber === currentPage - 2 ||
+              pageNumber === currentPage + 2
+            ) {
+              return (
+                <span key={pageNumber} className="pagination-ellipsis">
+                  ...
+                </span>
+              );
+            }
+            return null;
+          })}
 
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              className="pagination-btn pagination-next"
-              title="Next Page"
-            >
-              &rsaquo;
-            </button>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => changePage((prev: number) => prev + 1)}
+            className="pagination-btn pagination-next"
+            title="Next Page"
+          >
+            &rsaquo;
+          </button>
 
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(totalPages)}
-              className="pagination-btn pagination-last"
-              title="Last Page"
-            >
-              &raquo;
-            </button>
-          </div>
-
-          <div className="pagination-page-size">
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-          </div>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => changePage(totalPages)}
+            className="pagination-btn pagination-last"
+            title="Last Page"
+          >
+            &raquo;
+          </button>
         </div>
       </div>
 

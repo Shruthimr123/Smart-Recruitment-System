@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import "./css/AddJob.css";
+import axiosInstance from "../api/axiosInstance";
 
 const AddJob: React.FC = () => {
   const navigate = useNavigate();
@@ -19,19 +20,25 @@ const AddJob: React.FC = () => {
     e.preventDefault();
 
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    const createdBy = user?.id || "";
+    const createdById = user?.id || "";
 
-    if (!createdBy) {
+    if (!createdById) {
       toast.error("User ID not found. Please login again.");
       return;
     }
 
     try {
-      toast.success("Job added successfully!");
+      await axiosInstance.post("/jobs", {
+        title: formData.job,        
+        clientName: formData.client,
+        createdById: createdById,
+      });
 
+      toast.success("Job added successfully!");
       setFormData({ job: "", client: "" });
       navigate("/jobs");
     } catch (error) {
+      console.error(error);
       toast.error("Failed to add job.");
     }
   };

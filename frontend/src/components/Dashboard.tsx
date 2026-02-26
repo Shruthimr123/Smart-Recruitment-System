@@ -381,12 +381,44 @@ const Dashboard = () => {
       <div className="chart-content">{children}</div>
     </div>
   );
-  
+
+  // const handleViewAll = () => {
+  //   const ids = modalCandidates.map((c: Candidate) => c.id);
+  //   navigate("/results", { state: { candidateIds: ids, title: modalTitle } });
+  // };
+
   const handleViewAll = () => {
-    const ids = modalCandidates.map((c: Candidate) => c.id);
-    navigate("/results", { state: { candidateIds: ids, title: modalTitle } });
+    let filter = "all";
+
+    switch (modalTitle) {
+      case "Selected Candidates":
+        filter = "selected";
+        break;
+      case "Not Selected Candidates":
+        filter = "not-selected";
+        break;
+      case "Pending Tests":
+        filter = "pending";
+        break;
+      case "In Progress":
+        filter = "attending";
+        break;
+      case "Completed Tests":
+        filter = "completed";
+        break;
+      case "Attempts Exceeded":
+        filter = "attempts-exceeded";
+        break;
+      case "Expired Tests":
+        filter = "expired";
+        break;
+    }
+
+    navigate("/results", {
+      state: { filterStatus: filter, title: modalTitle },
+    });
   };
-  
+
   return (
     <div className="dashboard">
       <div className="dashboard-container">

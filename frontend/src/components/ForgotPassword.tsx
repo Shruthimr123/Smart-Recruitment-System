@@ -34,7 +34,7 @@ const ForgotPassword: React.FC = () => {
             name="email"
             placeholder="Enter your email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value.toLowerCase())}
             required
           />
           <button type="submit" disabled={loading}>
