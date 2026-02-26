@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-
+ 
 interface ProctorState {
   capturedImage: string | null;
   alertMessage: string;
@@ -7,8 +7,9 @@ interface ProctorState {
   isTestCompleted: boolean;
   malpracticeCount: number;
   verificationComplete: boolean;
+  currentApplicantId: string | null;
 }
-
+ 
 const initialState: ProctorState = {
   capturedImage: null,
   alertMessage: "",
@@ -16,8 +17,9 @@ const initialState: ProctorState = {
   isTestCompleted: false,
   malpracticeCount: 0,
   verificationComplete: false,
+  currentApplicantId: null,
 };
-
+ 
 const proctorSlice = createSlice({
   name: "proctor",
   initialState,
@@ -46,11 +48,27 @@ const proctorSlice = createSlice({
       state.verificationComplete = action.payload;
     },
     resetProctorState(state) {
-      Object.assign(state, initialState);
+      state.capturedImage = null;
+      state.alertMessage = "";
+      state.isTestStarted = false;
+      state.isTestCompleted = false;
+      state.malpracticeCount = 0;
+      state.verificationComplete = false;
+    },
+    setCurrentApplicantId(state, action: PayloadAction<string>) {
+      // If applicant ID changed, reset relevant state
+      if (state.currentApplicantId !== action.payload) {
+        state.malpracticeCount = 0;
+        state.verificationComplete = false;
+        state.capturedImage = null;
+        state.isTestStarted = false;
+        state.isTestCompleted = false;
+      }
+      state.currentApplicantId = action.payload;
     },
   },
 });
-
+ 
 export const {
   setCapturedImage,
   setAlertMessage,
@@ -60,6 +78,8 @@ export const {
   incrementMalpractice,
   setVerificationComplete,
   resetProctorState,
+  setCurrentApplicantId,
 } = proctorSlice.actions;
-
+ 
 export default proctorSlice.reducer;
+ 

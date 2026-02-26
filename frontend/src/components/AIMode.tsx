@@ -451,30 +451,7 @@ const AIMode: React.FC = () => {
             </button>
           </div>
 
-          {/* Test Link Display */}
-          {testLinkData && (
-            <div className="test-link-display">
-              <h3>AI Test Link Generated</h3>
-              <div className="link-container">
-                <input
-                  type="text"
-                  readOnly
-                  value={testLinkData.link}
-                  className="link-input"
-                  onClick={(e) => (e.target as HTMLInputElement).select()}
-                />
-                <button
-                  className="copy-btn"
-                  onClick={() => {
-                    navigator.clipboard.writeText(testLinkData.link);
-                    toast.success("Link copied to clipboard!");
-                  }}
-                >
-                  Copy
-                </button>
-              </div>
-            </div>
-          )}
+        
         </form>
       </div>
     </div>

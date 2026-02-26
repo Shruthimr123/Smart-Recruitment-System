@@ -1,7 +1,7 @@
 import { toast } from "sonner";
-
+ 
 let isRedirecting = false;
-
+ 
 export const addInactiveUserInterceptor = (instance: any) => {
   instance.interceptors.response.use(
     (response: any) => response,
@@ -9,11 +9,21 @@ export const addInactiveUserInterceptor = (instance: any) => {
       const status = error.response?.status;
       const message = error.response?.data?.message?.toLowerCase();
       const currentPath = window.location.pathname;
-
+ 
       //  Skip redirect if on reset-password page
       const isResetPasswordPage = currentPath.startsWith("/reset-password");
-
-      if (!isRedirecting && currentPath !== "/login" && !isResetPasswordPage) {
+ 
+      const isTestRoute =
+        currentPath.startsWith("/test") ||
+        currentPath.startsWith("/ai-test") ||
+        currentPath.startsWith("/thank-you");
+ 
+      if (
+        !isRedirecting &&
+        currentPath !== "/login" &&
+        !isResetPasswordPage &&
+        !isTestRoute
+      ) {
         if (status === 401) {
           isRedirecting = true;
           localStorage.removeItem("token");
@@ -27,8 +37,10 @@ export const addInactiveUserInterceptor = (instance: any) => {
           window.location.replace("/login");
         }
       }
-
+ 
       return Promise.reject(error);
-    }
+    },
   );
 };
+ 
+ 

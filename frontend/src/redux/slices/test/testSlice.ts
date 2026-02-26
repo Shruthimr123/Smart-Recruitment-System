@@ -5,7 +5,7 @@ import {
   skipQuestion,
   submitAnswer,
 } from "./testThunks";
-
+ 
 interface Option {
   id: string;
   optionText: string;
@@ -24,7 +24,7 @@ interface ApiQuestion {
   editable: boolean;
   mcq_question: MCQ;
 }
-
+ 
 interface TestState {
   questions: ApiQuestion[];
   currentIndex: number;
@@ -36,7 +36,7 @@ interface TestState {
   score: number | null;
   loading: boolean;
 }
-
+ 
 const initialState: TestState = {
   questions: [],
   currentIndex: 0,
@@ -48,7 +48,7 @@ const initialState: TestState = {
   score: null,
   loading: false,
 };
-
+ 
 const testSlice = createSlice({
   name: "test",
   initialState,
@@ -67,7 +67,7 @@ const testSlice = createSlice({
     },
     decrementTime(state, action: PayloadAction<{ attemptId?: string }>) {
       state.timeLeft = state.timeLeft > 0 ? state.timeLeft - 1 : 0;
-
+ 
       if (action.payload?.attemptId) {
         localStorage.setItem(
           `timer-${action.payload.attemptId}`,
@@ -75,7 +75,7 @@ const testSlice = createSlice({
         );
       }
     },
-
+ 
     resetTimer(state) {
       state.timeLeft = 45 * 60;
     },
@@ -130,7 +130,7 @@ const testSlice = createSlice({
       });
   },
 });
-
+ 
 export const {
   setStarted,
   setCurrentIndex,
@@ -140,3 +140,5 @@ export const {
   setTimeLeft,
 } = testSlice.actions;
 export default testSlice.reducer;
+ 
+ 

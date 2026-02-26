@@ -3,16 +3,16 @@ import { Loader2, XCircle } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import "../components/css/ApplicantDetails.css";
-
+ 
 const fetchApplicantData = async (id: string) => {
   const { data } = await axiosInstance.get("/dashboard");
   return data.data.find((candidate: any) => candidate.id === id);
 };
-
+ 
 const ApplicantDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+ 
   const {
     data: candidate,
     error,
@@ -23,7 +23,7 @@ const ApplicantDetails = () => {
     enabled: !!id,
     refetchInterval: 30000,
   });
-
+ 
   if (isLoading) {
     return (
       <div className="applicant-loading">
@@ -33,7 +33,7 @@ const ApplicantDetails = () => {
       </div>
     );
   }
-
+ 
   if (error) {
     return (
       <div className="applicant-error">
@@ -46,7 +46,7 @@ const ApplicantDetails = () => {
       </div>
     );
   }
-
+ 
   if (!candidate) {
     return (
       <div className="applicant-error">
@@ -60,24 +60,24 @@ const ApplicantDetails = () => {
       </div>
     );
   }
-
+ 
   // Calculate metrics using same logic as Dashboard
   const currentTime = new Date();
-  const testAttempt = candidate.test_attempts[0];
+  const testAttempt = candidate.test_attempts?.[0];
   const mcqScore = testAttempt?.mcq_score || 0;
   const totalMcqQuestions = 30;
-
+ 
   // Test status logic
   let testStatus = "pending";
   if (testAttempt) {
-    const token = testAttempt.test_access_tokens[0];
+    const token = testAttempt?.test_access_tokens?.[0];
     const isExpired =
       token &&
       new Date(token.expires_at) < currentTime &&
       !testAttempt.is_submitted;
     const isAttemptsExceeded =
       testAttempt.attempt_count >= 3 && !testAttempt.is_submitted;
-
+ 
     if (isAttemptsExceeded) {
       testStatus = "attempts-exceeded";
     } else if (isExpired) {
@@ -88,7 +88,7 @@ const ApplicantDetails = () => {
       testStatus = "completed";
     }
   }
-
+ 
   // Coding results
   const codingSubmission = candidate.submissions[0];
   const passedTests =
@@ -100,18 +100,18 @@ const ApplicantDetails = () => {
         ? "Passed"
         : "Failed"
       : "Not Attempted";
-
+ 
   // Selection status
   const isSelected =
     mcqScore > 20 &&
     candidate.submissions.some((sub: any) => sub.status === "Passed");
-
+ 
   // Format dates
   const formatDate = (dateString: any) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleString();
   };
-
+ 
   return (
     <div className="applicant-details-container">
       <button onClick={() => navigate("/results")} className="back-button">
@@ -144,7 +144,7 @@ const ApplicantDetails = () => {
           </div>
         </div>
       </div>
-
+ 
       <div className="applicant-content">
         <div className="info-section">
           <h2>Personal Information</h2>
@@ -187,7 +187,7 @@ const ApplicantDetails = () => {
             </div>
           </div>
         </div>
-
+ 
         {/* Test Information */}
         {testAttempt && (
           <div className="info-section">
@@ -286,7 +286,7 @@ const ApplicantDetails = () => {
             </div>
           </div>
         )}
-
+ 
         {/* Performance Summary */}
         <div className="info-section">
           <h2>Performance Summary</h2>
@@ -334,7 +334,7 @@ const ApplicantDetails = () => {
             </div>
           </div>
         </div>
-
+ 
         {/* Malpractice Information */}
         {candidate.malpractice && candidate.malpractice.length > 0 && (
           <div className="info-section">
@@ -355,7 +355,7 @@ const ApplicantDetails = () => {
             </div>
           </div>
         )}
-
+ 
         {/* Action Buttons */}
         <div className="action-section">
           <div className="action-buttons">
@@ -385,5 +385,7 @@ const ApplicantDetails = () => {
     </div>
   );
 };
-
+ 
 export default ApplicantDetails;
+ 
+ 

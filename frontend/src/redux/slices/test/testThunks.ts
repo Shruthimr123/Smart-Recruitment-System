@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosTestInstance from "../../../api/axiosTestInstance";
-
+ 
 export const fetchTestData = createAsyncThunk(
   "test/fetchData",
   async ({ token, applicantId, attemptId }: any, thunkAPI) => {
@@ -9,11 +9,11 @@ export const fetchTestData = createAsyncThunk(
         `/applicant-questions/assigned/${applicantId}/${attemptId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+ 
       //Get the attempt count from response
       const attemptCount = res.data.attemptCount || 0;
       console.log("Current attempt count from API:", attemptCount);
-
+ 
       return {
         ...res.data,
         currentAttemptCount: attemptCount,
@@ -26,7 +26,7 @@ export const fetchTestData = createAsyncThunk(
     }
   }
 );
-
+ 
 export const startTest = createAsyncThunk(
   "test/startTest",
   async ({ token, applicantId, attemptId }: any, thunkAPI) => {
@@ -36,33 +36,33 @@ export const startTest = createAsyncThunk(
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+ 
       const attemptCount = res.data.attemptCount || 0;
-
+ 
       // Check if maximum attempts exceeded
       if (attemptCount > 3) {
         throw new Error("MAXIMUM_ATTEMPTS_EXCEEDED");
       }
-
+ 
       return {
         ...res.data,
         currentAttemptCount: attemptCount,
       };
     } catch (err: any) {
       console.error("Error in startTest:", err);
-
-      // Handle maximum attempts error specifically
+ 
+      // Handle maximum attempts error
       if (err.message === "MAXIMUM_ATTEMPTS_EXCEEDED") {
         return thunkAPI.rejectWithValue("MAXIMUM_ATTEMPTS_EXCEEDED");
       }
-
+ 
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || "Unable to start test"
       );
     }
   }
 );
-
+ 
 export const submitAnswer = createAsyncThunk(
   "test/submitAnswer",
   async ({
@@ -80,7 +80,7 @@ export const submitAnswer = createAsyncThunk(
     return { questionId };
   }
 );
-
+ 
 export const skipQuestion = createAsyncThunk(
   "test/skipQuestion",
   async ({ token, applicantId, attemptId, questionId }: any) => {
@@ -92,21 +92,20 @@ export const skipQuestion = createAsyncThunk(
     return { questionId };
   }
 );
-
+ 
 export const evaluateTest = createAsyncThunk(
   "test/evaluate",
   async ({ token, applicantId, attemptId }: any, thunkAPI) => {
     try {
       console.log("Evaluating test for:", { applicantId, attemptId });
-
+ 
       const res = await axiosTestInstance.get(
         `/applicant-questions/evaluate/${applicantId}/${attemptId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+ 
       console.log("Evaluation response:", res.data);
-
-      // Mark token as used only after successful evaluation
+ 
       try {
         await axiosTestInstance.post(
           "/test/mark-token-used",
@@ -117,7 +116,7 @@ export const evaluateTest = createAsyncThunk(
       } catch (tokenError) {
         console.warn("Could not mark token as used:", tokenError);
       }
-
+ 
       return res.data;
     } catch (error: any) {
       console.error("Error in evaluateTest:", error);
@@ -127,3 +126,5 @@ export const evaluateTest = createAsyncThunk(
     }
   }
 );
+ 
+ 

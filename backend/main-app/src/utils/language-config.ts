@@ -1,5 +1,9 @@
 import * as path from 'path';
  
+ 
+ 
+const LIBS_PATH = path.join(process.cwd(), 'src', 'utils', 'libs');
+const WRAPPERS_PATH = path.join(process.cwd(), 'src', 'utils', 'Wrappers');
 interface LanguageConfigItem {
   extension: string;
   image: string;
@@ -13,7 +17,7 @@ export const LANGUAGE_CONFIG: Record<string, LanguageConfigItem> = {
     extension: '.cpp',
     image: 'gcc:13.2.0',
     extraVolume:
-      'C:\\Users\\Sam Christopher\\Desktop\\Mirfra SRS\\Smart Recruitment System\\SRS\\backend\\main-app\\src\\utils\\Wrappers',
+     WRAPPERS_PATH ,
     command: (file) =>
       `g++ -std=c++17 -I/app/wrappers ${file} -o /tmp/out && /tmp/out`,
   },
@@ -39,7 +43,7 @@ export const LANGUAGE_CONFIG: Record<string, LanguageConfigItem> = {
  java: {
   extension: '.java',
   image: 'openjdk:17',
-  extraVolume: 'C:\\Users\\Sam Christopher\\Desktop\\Mirfra SRS\\Smart Recruitment System\\SRS\\backend\\main-app\\src\\utils\\libs',
+  extraVolume: LIBS_PATH,
   command: (_file) => `javac -cp ".:/app/libs/*" Main.java && java -cp ".:/app/libs/*" Main`,
 },
  
@@ -47,7 +51,7 @@ csharp: {
   extension: '.cs',
   image: 'mono',
   extraVolume:
-    'C:\\Users\\Sam Christopher\\Desktop\\Mirfra SRS\\Smart Recruitment System\\SRS\\backend\\main-app\\src\\utils\\libs',
+    LIBS_PATH,
   command: (file) =>
     `csc ${file} -out:/app/program.exe \
     -r:/app/libs/Newtonsoft.Json.dll \
@@ -61,3 +65,4 @@ csharp: {
  
  
 };
+ 

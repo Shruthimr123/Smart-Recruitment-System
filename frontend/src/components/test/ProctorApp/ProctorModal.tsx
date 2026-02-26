@@ -8,7 +8,7 @@ import axiosProctorInstance from '../../../api/axiosProctorInstance';
 import axiosTestInstance from '../../../api/axiosTestInstance';
 import { setCapturedImage, setVerificationComplete } from '../../../redux/slices/proctorSlice';
 import { SIMILARITY_THRESHOLDS, FACE_REQUIREMENTS } from '../../../constants/proctorConstants';
-
+ 
 interface ProctorModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,18 +16,18 @@ interface ProctorModalProps {
   applicantId: string;
   token?: string;
 }
-
+ 
 // Strict state machine - only one state at a time
-type ModalState = 
+type ModalState =
   | 'idle'              // Camera active, no capture yet
   | 'captured'           // Image captured, ready for action
   | 'registering'        // First attempt - registering
   | 'verifying'          // Subsequent attempt - verifying
   | 'success'            // Verification successful
   | 'mismatch';          // Verification failed
-
+ 
 type DetectionStatus = 'no_face' | 'multiple_faces' | 'face_too_far' | 'face_ready' | 'detecting';
-
+ 
 interface FaceDetectionResult {
   status: DetectionStatus;
   coverage?: number;
@@ -35,10 +35,9 @@ interface FaceDetectionResult {
   y_offset?: number;
   message: string;
 }
-
+ 
 const ProctorModal: React.FC<ProctorModalProps> = ({
   isOpen,
-  onClose,
   onVerificationSuccess,
   applicantId,
   token,
@@ -46,7 +45,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
   const webcamRef = useRef<Webcam>(null);
   const dispatch = useDispatch();
   const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
+ 
   // State machine
   const [modalState, setModalState] = useState<ModalState>('idle');
   const [message, setMessage] = useState<string>('');
@@ -60,66 +59,65 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
     status: 'detecting',
     message: 'Initializing camera...'
   });
-
+ 
   // Check if applicant already has registered face
   useEffect(() => {
     if (isOpen && applicantId) {
       checkExistingRegistration();
     }
   }, [isOpen, applicantId]);
-
+ 
   const checkExistingRegistration = async () => {
     try {
-      // This would ideally check with backend, but for now we'll determine during verification
       setIsExistingProfile(false);
     } catch (error) {
       console.error('Error checking registration:', error);
     }
   };
-
+ 
   // Start passive face detection
   const startPassiveDetection = useCallback(() => {
     if (detectionIntervalRef.current) {
       clearInterval(detectionIntervalRef.current);
     }
-
+ 
     detectionIntervalRef.current = setInterval(async () => {
       if (!webcamRef.current || !webcamRef.current.video?.readyState || capturedImage) {
         return;
       }
-
+ 
       try {
         const imageSrc = webcamRef.current.getScreenshot();
         if (!imageSrc) return;
-
+ 
         const blob = await (await fetch(imageSrc)).blob();
         const file = new File([blob], 'detection.jpg', { type: blob.type });
-
+ 
         const formData = new FormData();
         formData.append('file', file);
-
+ 
         const res = await axiosProctorInstance.post('/detect/passive', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-
+ 
         updateFaceDetectionStatus(res.data);
       } catch (error) {
         console.error('Passive detection error:', error);
       }
     }, 1000);
   }, [capturedImage]);
-
+ 
   // Update face detection status based on API response
   const updateFaceDetectionStatus = (data: any) => {
     let detectionStatus: DetectionStatus;
     let detectionMessage: string;
-
+ 
     switch (data.status) {
       case 'face_detected':
         const coverage = data.coverage || 0;
         const xOffset = data.x_offset || 100;
         const yOffset = data.y_offset || 100;
-
+ 
         if (coverage < FACE_REQUIREMENTS.MIN_COVERAGE) {
           detectionStatus = 'face_too_far';
           detectionMessage = 'Face is too far. Move closer.';
@@ -131,22 +129,22 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
           detectionMessage = 'Ready to capture';
         }
         break;
-
+ 
       case 'multiple_faces':
         detectionStatus = 'multiple_faces';
         detectionMessage = 'Multiple faces detected';
         break;
-
+ 
       case 'no_face':
         detectionStatus = 'no_face';
         detectionMessage = 'Face not detected';
         break;
-
+ 
       default:
         detectionStatus = 'detecting';
         detectionMessage = 'Detecting face...';
     }
-
+ 
     setFaceDetection({
       status: detectionStatus,
       coverage: data.coverage,
@@ -155,27 +153,27 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
       message: detectionMessage,
     });
   };
-
+ 
   // Check if capture should be enabled
   const isCaptureEnabled = useCallback(() => {
-    return cameraReady && 
-           faceDetection.status === 'face_ready' && 
-           !isLoading && 
+    return cameraReady &&
+           faceDetection.status === 'face_ready' &&
+           !isLoading &&
            modalState === 'idle';
   }, [cameraReady, faceDetection.status, isLoading, modalState]);
-
+ 
   useEffect(() => {
     if (isOpen && cameraReady && !capturedImage && modalState === 'idle') {
       startPassiveDetection();
     }
-
+ 
     return () => {
       if (detectionIntervalRef.current) {
         clearInterval(detectionIntervalRef.current);
       }
     };
   }, [isOpen, cameraReady, capturedImage, modalState, startPassiveDetection]);
-
+ 
   const handleUserMedia = () => {
     setCameraReady(true);
     setFaceDetection({
@@ -183,7 +181,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
       message: 'Detecting face...'
     });
   };
-
+ 
   const handleUserMediaError = () => {
     setCameraReady(false);
     setFaceDetection({
@@ -191,29 +189,29 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
       message: 'Camera access denied'
     });
   };
-
+ 
   const captureImage = async () => {
     if (!webcamRef.current || !cameraReady || !isCaptureEnabled()) {
       return;
     }
-
+ 
     const imageSrc = webcamRef.current.getScreenshot();
     if (!imageSrc) {
       setMessage('Failed to capture image');
       return;
     }
-
+ 
     setCapturedImageState(imageSrc);
     setModalState('captured');
     setMessage('Image captured');
     setVerificationError(null);
-
+ 
     // Stop detection while showing captured image
     if (detectionIntervalRef.current) {
       clearInterval(detectionIntervalRef.current);
     }
   };
-
+ 
   const recaptureImage = () => {
     setCapturedImageState(null);
     setModalState('idle');
@@ -223,26 +221,26 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
     setIsExistingProfile(false);
     startPassiveDetection();
   };
-
+ 
   const verifyIdentity = async () => {
     if (!capturedImage || !applicantId) {
       setVerificationError('No image captured');
       return;
     }
-
+ 
     setIsLoading(true);
     setVerificationError(null);
-
+ 
     try {
       // Convert base64 to blob
       const blob = await (await fetch(capturedImage)).blob();
       const file = new File([blob], 'verification.jpg', { type: blob.type });
-
+ 
       // Get embedding from Python service
       const pythonFormData = new FormData();
       pythonFormData.append('file', file);
       pythonFormData.append('applicant_id', applicantId);
-
+ 
       const embeddingResponse = await axiosProctorInstance.post(
         '/register-with-embedding',
         pythonFormData,
@@ -250,58 +248,58 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
           headers: { 'Content-Type': 'multipart/form-data' },
         }
       );
-
+ 
       if (embeddingResponse.data.status !== 'success') {
         throw new Error(embeddingResponse.data.status);
       }
-
+ 
       const embedding = embeddingResponse.data.embedding;
-
+ 
       // Try to register with NestJS backend
       const registerFormData = new FormData();
       registerFormData.append('file', file);
       registerFormData.append('applicantId', applicantId);
       registerFormData.append('embedding', JSON.stringify(embedding));
-
+ 
       const config = token ? {
-        headers: { 
+        headers: {
           'Authorization': `Bearer ${token}`
         }
       } : {};
-
+ 
       const registerResponse = await axiosTestInstance.post(
         '/malpractice/register-candidate',
         registerFormData,
         config
       );
-
+ 
       if (registerResponse.data.isExisting) {
         // This is an existing user - verify
         setIsExistingProfile(true);
         setModalState('verifying');
         setMessage('Verifying identity...');
-        
+       
         const verifyFormData = new FormData();
         verifyFormData.append('file', file);
         verifyFormData.append('applicantId', applicantId);
         verifyFormData.append('embedding', JSON.stringify(embedding));
-
+ 
         const verifyResponse = await axiosTestInstance.post(
           '/malpractice/verify-candidate',
           verifyFormData,
           config
         );
-
+ 
         const similarityScore = verifyResponse.data.similarity;
         setSimilarity(similarityScore);
-        
+       
         if (verifyResponse.data.verified && similarityScore >= SIMILARITY_THRESHOLDS.PRE_TEST_VERIFICATION) {
           setModalState('success');
           setMessage(`Identity verified successfully! (${Math.round(similarityScore * 100)}% match)`);
-          
+         
           dispatch(setCapturedImage(registerResponse.data.profileImageUrl));
           dispatch(setVerificationComplete(true));
-          
+         
           setTimeout(() => {
             onVerificationSuccess();
           }, 1500);
@@ -314,13 +312,13 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
         setIsExistingProfile(false);
         setModalState('registering');
         setMessage('Registering identity...');
-        
+       
         setModalState('success');
         setMessage('Identity registered successfully!');
-        
+       
         dispatch(setCapturedImage(registerResponse.data.profileImageUrl));
         dispatch(setVerificationComplete(true));
-        
+       
         setTimeout(() => {
           onVerificationSuccess();
         }, 1500);
@@ -333,7 +331,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
       setIsLoading(false);
     }
   };
-
+ 
   const resetModal = () => {
     setModalState('idle');
     setCapturedImageState(null);
@@ -347,7 +345,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
     });
     startPassiveDetection();
   };
-
+ 
   const getStatusIcon = () => {
     switch (modalState) {
       case 'success':
@@ -361,12 +359,12 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
         return <Camera className="status-icon idle" />;
     }
   };
-
+ 
   // Get border class based on face detection
   const getWebcamBorderClass = () => {
     if (!cameraReady) return 'webcam-border-default';
     if (capturedImage) return 'webcam-border-captured';
-    
+   
     switch (faceDetection.status) {
       case 'face_ready':
         return 'webcam-border-ready';
@@ -380,7 +378,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
         return 'webcam-border-default';
     }
   };
-
+ 
   // Determine which buttons to show based on state
   const renderButtons = () => {
     // Only Retry button on mismatch
@@ -395,17 +393,17 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
         </button>
       );
     }
-
+ 
     // No buttons on success
     if (modalState === 'success') {
       return null;
     }
-
+ 
     // Loading states - show nothing
     if (modalState === 'registering' || modalState === 'verifying') {
       return null;
     }
-
+ 
     // Idle state - show Capture button only
     if (modalState === 'idle') {
       return (
@@ -419,7 +417,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
         </button>
       );
     }
-
+ 
     // Captured state - show Recapture and Verify/Register buttons
     if (modalState === 'captured') {
       return (
@@ -432,7 +430,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
             <RefreshCw size={18} />
             Recapture
           </button>
-
+ 
           <button
             className="modal-button verify-button"
             onClick={verifyIdentity}
@@ -453,10 +451,10 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
         </>
       );
     }
-
+ 
     return null;
   };
-
+ 
   return (
     <AnimatePresence>
       {isOpen && (
@@ -475,9 +473,8 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
           >
             <div className="proctor-modal-header">
               <h2>Proctor Verification</h2>
-              <button className="close-button" onClick={onClose}>×</button>
             </div>
-
+ 
             <div className="proctor-modal-content">
               <div className="webcam-section">
                 <div className={`webcam-circle-frame ${getWebcamBorderClass()}`}>
@@ -504,21 +501,21 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
                       )}
                     </>
                   ) : (
-                    <img 
-                      src={capturedImage} 
-                      alt="Captured" 
-                      className="captured-image-circle" 
+                    <img
+                      src={capturedImage}
+                      alt="Captured"
+                      className="captured-image-circle"
                     />
                   )}
                 </div>
-
-                {/* Face detection message - only in idle state */}
+ 
+                {/* Face detection message */}
                 {!capturedImage && cameraReady && modalState === 'idle' && (
                   <div className={`detection-message ${faceDetection.status}`}>
                     {faceDetection.message}
                   </div>
                 )}
-
+ 
                 {/* Local error message */}
                 {verificationError && (
                   <div className="verification-error-message">
@@ -526,7 +523,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
                     <span>{verificationError}</span>
                   </div>
                 )}
-
+ 
                 {/* Status message for loading/success states */}
                 {(modalState === 'registering' || modalState === 'verifying' || modalState === 'success') && (
                   <div className={`status-indicator-compact ${modalState}`}>
@@ -538,7 +535,7 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
                   </div>
                 )}
               </div>
-
+ 
               <div className="modal-actions-compact">
                 {renderButtons()}
               </div>
@@ -549,5 +546,6 @@ const ProctorModal: React.FC<ProctorModalProps> = ({
     </AnimatePresence>
   );
 };
-
+ 
 export default ProctorModal;
+ 

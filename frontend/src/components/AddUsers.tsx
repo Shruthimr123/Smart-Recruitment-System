@@ -6,6 +6,7 @@ import { registerUser } from "../redux/slices/authSlice";
 import { fetchRoles } from "../redux/slices/rolesSlice";
 import type { RootState } from "../redux/store";
 import "./css/AddUsers.css";
+import PasswordInput from "./PasswordInput";
 
 const AddUser: React.FC = () => {
   const dispatch = useDispatch<any>();
@@ -221,16 +222,13 @@ const AddUser: React.FC = () => {
             </div>
 
             <div className="user-registration-field-group">
-              <input
-                type="password"
+              <PasswordInput
                 name="password"
-                placeholder="Password:"
                 value={formData.password}
                 onChange={handleChange}
-                className={
-                  errors.password ? "user-registration-input-error" : ""
-                }
+                placeholder="Password"
               />
+
               {errors.password && (
                 <p className="user-registration-error-message">
                   {errors.password}

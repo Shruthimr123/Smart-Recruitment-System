@@ -132,18 +132,18 @@ const Dashboard = () => {
 
   // Selected: MCQ > 20 AND coding submission status is "Passed"
   const selectedCandidates = candidates.filter((candidate: Candidate) => {
-    const mcqScore = candidate.test_attempts[0]?.mcq_score || 0;
+    const mcqScore = candidate.test_attempts?.[0]?.mcq_score || 0;
     const hasPassedCoding = candidate.submissions.some(
-      (sub: { status: string }) => sub.status === "Passed"
+      (sub: { status: string }) => sub.status === "Passed",
     );
     return mcqScore > 20 && hasPassedCoding;
   });
 
   // Not Selected: MCQ <= 20 OR coding submission status is not "Passed" (or no submissions)
   const notSelectedCandidates = candidates.filter((candidate: Candidate) => {
-    const mcqScore = candidate.test_attempts[0]?.mcq_score || 0;
+    const mcqScore = candidate.test_attempts?.[0]?.mcq_score || 0;
     const hasPassedCoding = candidate.submissions.some(
-      (sub: { status: string }) => sub.status === "Passed"
+      (sub: { status: string }) => sub.status === "Passed",
     );
     return mcqScore <= 20 || !hasPassedCoding;
   });
@@ -152,9 +152,10 @@ const Dashboard = () => {
 
   // Helper function to check if test is expired
   const isTestExpired = (candidate: Candidate) => {
-    const token = candidate.test_attempts[0]?.test_access_tokens[0];
-    const testAttempt = candidate.test_attempts[0];
-    if (!token || !testAttempt) return false;
+    const testAttempt = candidate.test_attempts?.[0];
+    const token = testAttempt?.test_access_tokens?.[0];
+
+    if (!testAttempt || !token) return false;
 
     const expiresAt = new Date(token.expires_at);
     return expiresAt < currentTime && testAttempt.is_submitted === false;
@@ -162,7 +163,7 @@ const Dashboard = () => {
 
   // Helper function to check if attempts are exceeded
   const isAttemptsExceeded = (candidate: Candidate) => {
-    const testAttempt = candidate.test_attempts[0];
+    const testAttempt = candidate.test_attempts?.[0];
     if (!testAttempt) return false;
 
     return testAttempt.attempt_count >= 3 && testAttempt.is_submitted === false;
@@ -170,7 +171,7 @@ const Dashboard = () => {
 
   //pending candidate
   const pendingCandidates = candidates.filter((candidate: Candidate) => {
-    const testAttempt = candidate.test_attempts[0];
+    const testAttempt = candidate.test_attempts?.[0];
     if (!testAttempt) return true; // no attempt = pending
 
     return (
@@ -183,7 +184,7 @@ const Dashboard = () => {
 
   // in progress candidate 
   const inProgressCandidates = candidates.filter((candidate: Candidate) => {
-    const testAttempt = candidate.test_attempts[0];
+    const testAttempt = candidate.test_attempts?.[0];
     if (!testAttempt) return false;
 
     // Test is "attending" and not expired or exceeded
@@ -196,38 +197,42 @@ const Dashboard = () => {
 
 
   // Categorize candidates based on test status with proper logic
-  const testStatusCounts = candidates.reduce((acc: any, candidate: Candidate) => {
-    const testAttempt = candidate.test_attempts[0];
-    if (!testAttempt) {
-      acc.pending = (acc.pending || 0) + 1;
+  const testStatusCounts = candidates.reduce(
+    (acc: any, candidate: Candidate) => {
+      const testAttempt = candidate.test_attempts?.[0];
+      if (!testAttempt) {
+        acc.pending = (acc.pending || 0) + 1;
+        return acc;
+      }
+
+      // Check attempts exceeded first (highest priority)
+      if (isAttemptsExceeded(candidate)) {
+        acc.attemptsExceeded = (acc.attemptsExceeded || 0) + 1;
+      }
+      // Then check if test is expired (but not if attempts exceeded)
+      else if (isTestExpired(candidate)) {
+        acc.expired = (acc.expired || 0) + 1;
+      }
+      // Then check other statuses
+      else if (
+        testAttempt.test_status === "pending" &&
+        testAttempt.is_submitted === false
+      ) {
+        acc.pending = (acc.pending || 0) + 1;
+      } else if (testAttempt.test_status === "attending") {
+        acc.attending = (acc.attending || 0) + 1;
+      } else if (testAttempt.test_status === "completed") {
+        acc.completed = (acc.completed || 0) + 1;
+      } else {
+        // Fallback for any other status
+        acc.pending = (acc.pending || 0) + 1;
+      }
+
       return acc;
-    }
+    },
+    {},
+  );
 
-    // Check attempts exceeded first (highest priority)
-    if (isAttemptsExceeded(candidate)) {
-      acc.attemptsExceeded = (acc.attemptsExceeded || 0) + 1;
-    }
-    // Then check if test is expired (but not if attempts exceeded)
-    else if (isTestExpired(candidate)) {
-      acc.expired = (acc.expired || 0) + 1;
-    }
-    // Then check other statuses
-    else if (
-      testAttempt.test_status === "pending" &&
-      testAttempt.is_submitted === false
-    ) {
-      acc.pending = (acc.pending || 0) + 1;
-    } else if (testAttempt.test_status === "attending") {
-      acc.attending = (acc.attending || 0) + 1;
-    } else if (testAttempt.test_status === "completed") {
-      acc.completed = (acc.completed || 0) + 1;
-    } else {
-      // Fallback for any other status
-      acc.pending = (acc.pending || 0) + 1;
-    }
-
-    return acc;
-  }, {});
 
   // Get individual counts
   const attemptsExceededTests = testStatusCounts.attemptsExceeded || 0;
@@ -266,27 +271,31 @@ const Dashboard = () => {
 
   // Recent 5 candidates based on test_attempts.updated_at (ONLY for Recent Test Results table)
   const recentCandidates = candidates
-    .filter((c: Candidate) => c.test_attempts[0]?.updated_at) // Filter candidates with test attempts
-    .sort(
-      (a: Candidate, b: Candidate) => {
-        const aDate = a.test_attempts[0]?.updated_at ? new Date(a.test_attempts[0].updated_at).getTime() : 0;
-        const bDate = b.test_attempts[0]?.updated_at ? new Date(b.test_attempts[0].updated_at).getTime() : 0;
-        return bDate - aDate;
-      }
-    )
+    .filter((c: Candidate) => c.test_attempts?.[0]?.updated_at) // Filter candidates with test attempts
+    .sort((a: Candidate, b: Candidate) => {
+      const aDate = a.test_attempts?.[0]?.updated_at
+        ? new Date(a.test_attempts[0].updated_at).getTime()
+        : 0;
+      const bDate = b.test_attempts?.[0]?.updated_at
+        ? new Date(b.test_attempts[0].updated_at).getTime()
+        : 0;
+      return bDate - aDate;
+    })
     .slice(0, 5); // Only limit the Recent Test Results to 5
 
-  // Chart data preparation
-  const skillsChartData: ChartDataItem[] = Object.entries(skillsDistribution).map(
-    ([name, value]) => ({
-      name: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
-      value: value as number,
-    })
-  );
 
-  const experienceChartData: ChartDataItem[] = Object.entries(experienceDistribution).map(
-    ([name, value]) => ({ name, value: value as number })
-  );
+  // Chart data preparation
+  const skillsChartData: ChartDataItem[] = Object.entries(
+    skillsDistribution,
+  ).map(([name, value]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
+    value: value as number,
+  }));
+
+  const experienceChartData: ChartDataItem[] = Object.entries(
+    experienceDistribution,
+  ).map(([name, value]) => ({ name, value: value as number }));
+
 
   const COLORS = [
     "#3B82F6",
@@ -468,8 +477,9 @@ const Dashboard = () => {
               openModal(
                 "Completed Tests",
                 candidates.filter(
-                  (c: Candidate) => c.test_attempts[0]?.test_status === "completed"
-                )
+                  (c: Candidate) =>
+                    c.test_attempts?.[0]?.test_status === "completed",
+                ),
               )
             }
           />
@@ -544,9 +554,13 @@ const Dashboard = () => {
                   outerRadius={70}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ name, percent }: { name: string; percent?: number }) =>
-                    `${name} ${((percent || 0) * 100).toFixed(0)}%`
-                  }
+                  label={({
+                    name,
+                    percent,
+                  }: {
+                    name: string;
+                    percent?: number;
+                  }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                 >
                   {skillsChartData.map((_entry, index) => (
                     <Cell
@@ -603,7 +617,7 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {recentCandidates.map((candidate: Candidate) => {
-                  const mcqScore = candidate.test_attempts[0]?.mcq_score || 0;
+                  const mcqScore = candidate.test_attempts?.[0]?.mcq_score || 0;
                   const codingStatus =
                     candidate.submissions.length > 0
                       ? candidate.submissions.find(
@@ -615,7 +629,7 @@ const Dashboard = () => {
 
                   // Determine actual test status
                   let testStatus =
-                    candidate.test_attempts[0]?.test_status || "pending";
+                    candidate.test_attempts?.[0]?.test_status || "pending";
 
                   // Check attempts exceeded first 
                   if (isAttemptsExceeded(candidate)) {

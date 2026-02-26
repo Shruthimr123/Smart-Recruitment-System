@@ -68,14 +68,14 @@ const Results = () => {
 
     const isTestExpired = (candidate: Candidate) => {
       const token = candidate.test_attempts[0]?.test_access_tokens[0];
-      const testAttempt = candidate.test_attempts[0];
+      const testAttempt = candidate.test_attempts?.[0];
       if (!token || !testAttempt) return false;
       const expiresAt = new Date(token.expires_at);
       return expiresAt < currentTime && testAttempt.is_submitted === false;
     };
 
     const isAttemptsExceeded = (candidate: Candidate) => {
-      const testAttempt = candidate.test_attempts[0];
+      const testAttempt = candidate.test_attempts?.[0];
       if (!testAttempt) return false;
       return (
         testAttempt.attempt_count >= 3 && testAttempt.is_submitted === false
@@ -83,7 +83,7 @@ const Results = () => {
     };
 
     const getTestStatus = (candidate: Candidate) => {
-      const testAttempt = candidate.test_attempts[0];
+      const testAttempt = candidate.test_attempts?.[0];
       if (!testAttempt) return "pending";
 
       if (isAttemptsExceeded(candidate)) {
@@ -253,7 +253,7 @@ const Results = () => {
       </div>
     );
   }
-  
+
   const changePage = (page: number | ((prev: number) => number)) => {
     setCurrentPage(page as any);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -402,14 +402,14 @@ const Results = () => {
                 ).length || 0;
               const totalTests = codingSubmission?.testResults?.length || 0;
 
-              const testAttempt = candidate.test_attempts[0];
+              const testAttempt = candidate.test_attempts?.[0];
               const mcqMode = testAttempt?.mcq_mode || "manual";
 
               const mcqScore = testAttempt?.mcq_score || 0;
               let testStatus = "pending";
 
               if (testAttempt) {
-                const token = testAttempt.test_access_tokens[0];
+                const token = testAttempt?.test_access_tokens?.[0];
                 const isExpired =
                   token &&
                   new Date(token.expires_at) < new Date() &&

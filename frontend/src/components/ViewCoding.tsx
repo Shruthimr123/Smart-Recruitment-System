@@ -284,7 +284,11 @@ const ViewCoding: React.FC = () => {
                   <button
                     key={page}
                     className={`pagination-number ${currentPage === page ? 'active' : ''}`}
-                    onClick={() => handlePageChange(page)}
+                    onClick={() => {
+                      handlePageChange(page);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                    }
                   >
                     {page}
                   </button>

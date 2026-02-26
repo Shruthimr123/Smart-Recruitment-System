@@ -38,7 +38,6 @@ const ProctorApp: React.FC<MyComponentProps> = ({
   const applicantId = localStorage.getItem("applicantId") || "";
   const token = localStorage.getItem("token") || undefined;
  
-  // Show proctor modal if test not started and not verified
   useEffect(() => {
     if (!isTestStarted && !verificationComplete && applicantId) {
       setShowProctorModal(true);
@@ -80,10 +79,8 @@ const ProctorApp: React.FC<MyComponentProps> = ({
     }
   };
  
-  // Simplified handler - just logs, no increments
   const handleMalpracticeDetected = (message: string): void => {
     console.log(`Malpractice detected: ${message}`);
-    // Increment happens in WebcamCapture only
   };
  
   useEffect(() => {
@@ -100,7 +97,6 @@ const ProctorApp: React.FC<MyComponentProps> = ({
   }, [malpracticeCount, isTestStarted, isSubmitting, isTestCompleted]);
  
   const handleModalClose = () => {
-    // Don't allow closing without verification if test hasn't started
     if (!isTestStarted && !verificationComplete) {
       return;
     }
@@ -135,3 +131,4 @@ const ProctorApp: React.FC<MyComponentProps> = ({
 };
  
 export default ProctorApp;
+ 

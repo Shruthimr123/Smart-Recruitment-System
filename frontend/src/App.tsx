@@ -1,4 +1,11 @@
-import { matchPath, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import {
+  matchPath,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import "./App.css";
 import AddCodingQuestions from "./components/AddCodingQuestions";
 import AddJob from "./components/AddJob";
@@ -15,6 +22,7 @@ import LinkExpired from "./components/LinkExpired";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import MalpracticeImages from "./components/MalpracticeImages";
+import McqResultRouter from "./components/McqResultRouter";
 import NotFound from "./components/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Results from "./components/Results";
@@ -24,7 +32,6 @@ import ThankYou from "./components/test/ThankYou";
 import ViewCoding from "./components/ViewCoding";
 import ViewMCQ from "./components/ViewMCQ";
 import ViewQuestions from "./components/ViewQuestions";
-import { addInactiveUserInterceptor } from "./api/interceptors";
 import axiosInstance from "./api/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -38,14 +45,12 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuth, clearAuth } from "./redux/slices/authSlice";
-// FIXED: Use type-only import for RootState
 import type { RootState } from "./redux/store";
-import McqResultRouter from "./components/McqResultRouter";
-addInactiveUserInterceptor(axiosInstance);
-
+import ScrollToTop from "./components/ScrollToTop";
+ 
 const AppLayout = () => {
   const location = useLocation();
-
+ 
   const hideLayout =
     matchPath("/ai-test/:token/:applicantId/:attemptId", location.pathname) ||
     matchPath("/ai-test/thank-you", location.pathname) ||
@@ -55,7 +60,7 @@ const AppLayout = () => {
     matchPath("/test/thank-you", location.pathname) ||
     matchPath("/test/attempts-exceeded", location.pathname) ||
     matchPath("/test/link-expired", location.pathname);
-
+ 
   return (
     <div className="app-container">
       {!hideLayout && <Navbar />}
@@ -66,26 +71,33 @@ const AppLayout = () => {
     </div>
   );
 };
-
+ 
 // Standalone layout for test pages
 const StandaloneLayout = () => {
   return <Outlet />;
 };
-
+ 
 function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
-  
+ 
   const currentUser = useSelector((state: RootState) => state.auth.user);
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+  );
+ 
+  const location = useLocation();
+  const isTestRoute =
+    location.pathname.startsWith("/test") ||
+    location.pathname.startsWith("/ai-test");
+ 
   // Initialize auth state on app load
   useEffect(() => {
     const initializeAuth = () => {
       const token = localStorage.getItem("token");
       const userStr = localStorage.getItem("user");
-      
+ 
       if (token && userStr) {
         try {
           const userData = JSON.parse(userStr);
@@ -99,14 +111,14 @@ function App() {
       } else {
         dispatch(clearAuth());
       }
-      
+ 
       setIsAuthInitialized(true);
     };
-
+ 
     initializeAuth();
   }, [dispatch]);
-
-  // User status check (only for authenticated users)
+ 
+  // User status check
   const { data: userStatus } = useQuery({
     queryKey: ["userStatus", currentUser?.email],
     queryFn: async () => {
@@ -115,11 +127,11 @@ function App() {
       );
       return response?.data?.data;
     },
-    enabled: !!currentUser?.email && isAuthenticated,
+    enabled: !!currentUser?.email && isAuthenticated && !isTestRoute,
     refetchInterval: 15000,
     refetchIntervalInBackground: true,
   });
-
+ 
   useEffect(() => {
     if (userStatus?.data === "inactive" && isAuthenticated) {
       localStorage.clear();
@@ -127,175 +139,265 @@ function App() {
       navigate("/login");
     }
   }, [userStatus, navigate, dispatch, isAuthenticated]);
-
-  // Show nothing while auth is initializing (prevents flash)
+ 
+  // Show nothing while auth is initializing
   if (!isAuthInitialized) {
-    return null; // or a loading spinner
+    return null;
   }
-
+ 
   return (
     <div className="container">
+      <ScrollToTop/>
       <Routes>
-        {/* PUBLIC ROUTES - accessible to everyone */}
+        {/* PUBLIC ROUTES*/}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        
-        {/* TEST ROUTES - completely independent of auth */}
+ 
+        {/* TEST ROUTES*/}
         <Route path="/test/*" element={<StandaloneLayout />}>
           <Route path="thank-you" element={<ThankYou />} />
           <Route path="attempts-exceeded" element={<AttemptsExceeded />} />
           <Route path="link-expired" element={<LinkExpired />} />
           <Route path=":token/:applicantId/:attemptId" element={<TestPage />} />
         </Route>
-
+ 
         {/* AI TEST ROUTES */}
         <Route path="/ai-test/*" element={<StandaloneLayout />}>
           <Route path="thank-you" element={<ThankYou />} />
           <Route path="attempts-exceeded" element={<AttemptsExceeded />} />
           <Route path="link-expired" element={<LinkExpired />} />
-          <Route path=":token/:applicantId/:attemptId" element={<AITestPage />} />
+          <Route
+            path=":token/:applicantId/:attemptId"
+            element={<AITestPage />}
+          />
         </Route>
-
+ 
         {/* Direct standalone routes for backward compatibility */}
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="/attempts-exceeded" element={<AttemptsExceeded />} />
         <Route path="/link-expired" element={<LinkExpired />} />
-
+ 
         {/* PROTECTED ROUTES - require authentication */}
         <Route path="/" element={<AppLayout />}>
-          {/* Public routes inside layout (but still public) */}
+          {/* Public routes inside layout*/}
           <Route index element={<Home />} />
-          
+ 
           {/* Auth routes */}
           <Route path="login" element={<Login />} />
           <Route path="logout" element={<Logout />} />
-          
+ 
           {/* All protected routes wrapped with ProtectedRoute */}
-          <Route path="all-users" element={
-            <ProtectedRoute allowedRoles={["super admin"]}>
-              <AllUsers />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="add-users" element={
-            <ProtectedRoute allowedRoles={["super admin"]}>
-              <AddUsers />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="send-test" element={
-            <ProtectedRoute allowedRoles={["super admin", "talent acquisition"]}>
-              <SendTest />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="test-mode" element={
-            <ProtectedRoute allowedRoles={["super admin", "talent acquisition"]}>
-              <TestMode />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="select-mcqs" element={
-            <ProtectedRoute allowedRoles={["super admin", "talent acquisition"]}>
-              <SelectMCQs />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="jobs" element={
-            <ProtectedRoute allowedRoles={["super admin", "talent acquisition"]}>
-              <Jobs />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="add-job" element={
-            <ProtectedRoute allowedRoles={["super admin", "talent acquisition"]}>
-              <AddJob />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="add-questions" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager"]}>
-              <AddQuestions />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="add-mcq" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager"]}>
-              <AddMCQ />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="add-coding" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager"]}>
-              <AddCodingQuestions />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="view-questions" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager", "talent acquisition"]}>
-              <ViewQuestions />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="view-mcq" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager", "talent acquisition"]}>
-              <ViewMCQ />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="view-coding" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager", "talent acquisition"]}>
-              <ViewCoding />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="results" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager", "talent acquisition"]}>
-              <Results />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="results/mcq/:type/:applicantId" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager", "talent acquisition"]}>
+          <Route
+            path="all-users"
+            element={
+              <ProtectedRoute allowedRoles={["super admin"]}>
+                <AllUsers />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="add-users"
+            element={
+              <ProtectedRoute allowedRoles={["super admin"]}>
+                <AddUsers />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="send-test"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "talent acquisition"]}
+              >
+                <SendTest />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="test-mode"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "talent acquisition"]}
+              >
+                <TestMode />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="select-mcqs"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "talent acquisition"]}
+              >
+                <SelectMCQs />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="jobs"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "talent acquisition"]}
+              >
+                <Jobs />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="add-job"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "talent acquisition"]}
+              >
+                <AddJob />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="add-questions"
+            element={
+              <ProtectedRoute allowedRoles={["super admin", "manager"]}>
+                <AddQuestions />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="add-mcq"
+            element={
+              <ProtectedRoute allowedRoles={["super admin", "manager"]}>
+                <AddMCQ />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="add-coding"
+            element={
+              <ProtectedRoute allowedRoles={["super admin", "manager"]}>
+                <AddCodingQuestions />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="view-questions"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "manager", "talent acquisition"]}
+              >
+                <ViewQuestions />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="view-mcq"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "manager", "talent acquisition"]}
+              >
+                <ViewMCQ />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="view-coding"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "manager", "talent acquisition"]}
+              >
+                <ViewCoding />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="results"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "manager", "talent acquisition"]}
+              >
+                <Results />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="results/mcq/:type/:applicantId"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "manager", "talent acquisition"]}
+              >
                 <McqResultRouter />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="results/coding/:applicantId" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager", "talent acquisition"]}>
-              <CodingResult />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="applicant-info/:id" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager", "talent acquisition"]}>
-              <ApplicantDetails />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="results/malpractice/:id" element={
-            <ProtectedRoute allowedRoles={["super admin", "manager", "talent acquisition"]}>
-              <MalpracticeImages />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="ai-mode" element={
-            <ProtectedRoute allowedRoles={["super admin", "talent acquisition"]}>
-              <AIMode />
-            </ProtectedRoute>
-          } />
-
-          {/* Catch-all route for 404 within the app layout */}
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="results/coding/:applicantId"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "manager", "talent acquisition"]}
+              >
+                <CodingResult />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="applicant-info/:id"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "manager", "talent acquisition"]}
+              >
+                <ApplicantDetails />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="results/malpractice/:id"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "manager", "talent acquisition"]}
+              >
+                <MalpracticeImages />
+              </ProtectedRoute>
+            }
+          />
+ 
+          <Route
+            path="ai-mode"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "talent acquisition"]}
+              >
+                <AIMode />
+              </ProtectedRoute>
+            }
+          />
+ 
+          {/* Catch-all route for 404*/}
           <Route path="*" element={<NotFound />} />
         </Route>
-
+ 
         {/* Global catch-all for any unmatched routes */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );
 }
-
+ 
 export default App;
+ 
