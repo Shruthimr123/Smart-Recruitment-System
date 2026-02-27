@@ -67,7 +67,7 @@ const Results = () => {
     const currentTime = new Date();
 
     const isTestExpired = (candidate: Candidate) => {
-      const token = candidate.test_attempts[0]?.test_access_tokens[0];
+      const token = candidate.test_attempts?.[0]?.test_access_tokens?.[0];
       const testAttempt = candidate.test_attempts?.[0];
       if (!token || !testAttempt) return false;
       const expiresAt = new Date(token.expires_at);
@@ -105,7 +105,7 @@ const Results = () => {
     };
 
     const isSelected = (candidate: Candidate) => {
-      const mcqScore = candidate.test_attempts[0]?.mcq_score || 0;
+      const mcqScore = candidate.test_attempts?.[0]?.mcq_score || 0;
       const hasPassedCoding = candidate.submissions.some(
         (sub: { status: string }) => sub.status === "Passed"
       );
@@ -131,8 +131,8 @@ const Results = () => {
     // Filter by search term
     filtered = filtered.filter(
       (candidate: Candidate) =>
-        candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        candidate.email.toLowerCase().includes(searchTerm.toLowerCase())
+        candidate.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        candidate.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Filter by status
@@ -395,7 +395,7 @@ const Results = () => {
             {paginatedCandidates.map((candidate: Candidate) => {
               const totalMcqQuestions = 30;
 
-              const codingSubmission = candidate.submissions[0];
+              const codingSubmission = candidate.submissions?.[0];
               const passedTests =
                 codingSubmission?.testResults?.filter(
                   (tr: { passed: boolean }) => tr.passed

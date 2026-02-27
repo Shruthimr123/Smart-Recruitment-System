@@ -47,10 +47,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAuth, clearAuth } from "./redux/slices/authSlice";
 import type { RootState } from "./redux/store";
 import ScrollToTop from "./components/ScrollToTop";
- 
+
 const AppLayout = () => {
   const location = useLocation();
- 
+
   const hideLayout =
     matchPath("/ai-test/:token/:applicantId/:attemptId", location.pathname) ||
     matchPath("/ai-test/thank-you", location.pathname) ||
@@ -60,7 +60,7 @@ const AppLayout = () => {
     matchPath("/test/thank-you", location.pathname) ||
     matchPath("/test/attempts-exceeded", location.pathname) ||
     matchPath("/test/link-expired", location.pathname);
- 
+
   return (
     <div className="app-container">
       {!hideLayout && <Navbar />}
@@ -71,33 +71,33 @@ const AppLayout = () => {
     </div>
   );
 };
- 
+
 // Standalone layout for test pages
 const StandaloneLayout = () => {
   return <Outlet />;
 };
- 
+
 function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
- 
+
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
   );
- 
+
   const location = useLocation();
   const isTestRoute =
     location.pathname.startsWith("/test") ||
     location.pathname.startsWith("/ai-test");
- 
+
   // Initialize auth state on app load
   useEffect(() => {
     const initializeAuth = () => {
       const token = localStorage.getItem("token");
       const userStr = localStorage.getItem("user");
- 
+
       if (token && userStr) {
         try {
           const userData = JSON.parse(userStr);
@@ -111,13 +111,13 @@ function App() {
       } else {
         dispatch(clearAuth());
       }
- 
+
       setIsAuthInitialized(true);
     };
- 
+
     initializeAuth();
   }, [dispatch]);
- 
+
   // User status check
   const { data: userStatus } = useQuery({
     queryKey: ["userStatus", currentUser?.email],
@@ -131,7 +131,7 @@ function App() {
     refetchInterval: 15000,
     refetchIntervalInBackground: true,
   });
- 
+
   useEffect(() => {
     if (userStatus?.data === "inactive" && isAuthenticated) {
       localStorage.clear();
@@ -139,22 +139,22 @@ function App() {
       navigate("/login");
     }
   }, [userStatus, navigate, dispatch, isAuthenticated]);
- 
+
   // Show nothing while auth is initializing
   if (!isAuthInitialized) {
     return null;
   }
- 
+
   return (
     <div className="container">
-      <ScrollToTop/>
+      <ScrollToTop />
       <Routes>
         {/* PUBLIC ROUTES*/}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
- 
+
         {/* TEST ROUTES*/}
         <Route path="/test/*" element={<StandaloneLayout />}>
           <Route path="thank-you" element={<ThankYou />} />
@@ -162,7 +162,7 @@ function App() {
           <Route path="link-expired" element={<LinkExpired />} />
           <Route path=":token/:applicantId/:attemptId" element={<TestPage />} />
         </Route>
- 
+
         {/* AI TEST ROUTES */}
         <Route path="/ai-test/*" element={<StandaloneLayout />}>
           <Route path="thank-you" element={<ThankYou />} />
@@ -173,21 +173,21 @@ function App() {
             element={<AITestPage />}
           />
         </Route>
- 
+
         {/* Direct standalone routes for backward compatibility */}
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="/attempts-exceeded" element={<AttemptsExceeded />} />
         <Route path="/link-expired" element={<LinkExpired />} />
- 
+
         {/* PROTECTED ROUTES - require authentication */}
         <Route path="/" element={<AppLayout />}>
           {/* Public routes inside layout*/}
           <Route index element={<Home />} />
- 
+
           {/* Auth routes */}
           <Route path="login" element={<Login />} />
           <Route path="logout" element={<Logout />} />
- 
+
           {/* All protected routes wrapped with ProtectedRoute */}
           <Route
             path="all-users"
@@ -197,7 +197,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="add-users"
             element={
@@ -206,7 +206,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="send-test"
             element={
@@ -217,7 +217,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="test-mode"
             element={
@@ -228,7 +228,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="select-mcqs"
             element={
@@ -239,7 +239,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="jobs"
             element={
@@ -250,7 +250,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="add-job"
             element={
@@ -261,7 +261,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="add-questions"
             element={
@@ -270,7 +270,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="add-mcq"
             element={
@@ -279,7 +279,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="add-coding"
             element={
@@ -288,7 +288,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="view-questions"
             element={
@@ -299,7 +299,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="view-mcq"
             element={
@@ -310,7 +310,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="view-coding"
             element={
@@ -321,7 +321,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="results"
             element={
@@ -332,7 +332,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="results/mcq/:type/:applicantId"
             element={
@@ -343,7 +343,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           <Route
             path="results/coding/:applicantId"
             element={
@@ -354,18 +354,7 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
-          <Route
-            path="applicant-info/:id"
-            element={
-              <ProtectedRoute
-                allowedRoles={["super admin", "manager", "talent acquisition"]}
-              >
-                <ApplicantDetails />
-              </ProtectedRoute>
-            }
-          />
- 
+
           <Route
             path="results/malpractice/:id"
             element={
@@ -376,7 +365,18 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
+          <Route
+            path="applicant-info/:id"
+            element={
+              <ProtectedRoute
+                allowedRoles={["super admin", "manager", "talent acquisition"]}
+              >
+                <ApplicantDetails />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="ai-mode"
             element={
@@ -387,17 +387,16 @@ function App() {
               </ProtectedRoute>
             }
           />
- 
+
           {/* Catch-all route for 404*/}
           <Route path="*" element={<NotFound />} />
         </Route>
- 
+
         {/* Global catch-all for any unmatched routes */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );
 }
- 
+
 export default App;
- 

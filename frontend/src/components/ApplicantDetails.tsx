@@ -3,16 +3,16 @@ import { Loader2, XCircle } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import "../components/css/ApplicantDetails.css";
- 
+
 const fetchApplicantData = async (id: string) => {
   const { data } = await axiosInstance.get("/dashboard");
   return data.data.find((candidate: any) => candidate.id === id);
 };
- 
+
 const ApplicantDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
- 
+
   const {
     data: candidate,
     error,
@@ -23,7 +23,7 @@ const ApplicantDetails = () => {
     enabled: !!id,
     refetchInterval: 30000,
   });
- 
+
   if (isLoading) {
     return (
       <div className="applicant-loading">
@@ -33,7 +33,7 @@ const ApplicantDetails = () => {
       </div>
     );
   }
- 
+
   if (error) {
     return (
       <div className="applicant-error">
@@ -46,7 +46,7 @@ const ApplicantDetails = () => {
       </div>
     );
   }
- 
+
   if (!candidate) {
     return (
       <div className="applicant-error">
@@ -60,13 +60,13 @@ const ApplicantDetails = () => {
       </div>
     );
   }
- 
+
   // Calculate metrics using same logic as Dashboard
   const currentTime = new Date();
   const testAttempt = candidate.test_attempts?.[0];
   const mcqScore = testAttempt?.mcq_score || 0;
   const totalMcqQuestions = 30;
- 
+
   // Test status logic
   let testStatus = "pending";
   if (testAttempt) {
@@ -77,7 +77,7 @@ const ApplicantDetails = () => {
       !testAttempt.is_submitted;
     const isAttemptsExceeded =
       testAttempt.attempt_count >= 3 && !testAttempt.is_submitted;
- 
+
     if (isAttemptsExceeded) {
       testStatus = "attempts-exceeded";
     } else if (isExpired) {
@@ -88,7 +88,7 @@ const ApplicantDetails = () => {
       testStatus = "completed";
     }
   }
- 
+
   // Coding results
   const codingSubmission = candidate.submissions[0];
   const passedTests =
@@ -100,18 +100,18 @@ const ApplicantDetails = () => {
         ? "Passed"
         : "Failed"
       : "Not Attempted";
- 
+
   // Selection status
   const isSelected =
     mcqScore > 20 &&
     candidate.submissions.some((sub: any) => sub.status === "Passed");
- 
+
   // Format dates
   const formatDate = (dateString: any) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleString();
   };
- 
+
   return (
     <div className="applicant-details-container">
       <button onClick={() => navigate("/results")} className="back-button">
@@ -134,9 +134,8 @@ const ApplicantDetails = () => {
                 Download Report
               </button>
               <div
-                className={`selection-status ${
-                  isSelected ? "selected" : "not-selected"
-                }`}
+                className={`selection-status ${isSelected ? "selected" : "not-selected"
+                  }`}
               >
                 {isSelected ? "SELECTED" : "NOT SELECTED"}
               </div>
@@ -144,7 +143,7 @@ const ApplicantDetails = () => {
           </div>
         </div>
       </div>
- 
+
       <div className="applicant-content">
         <div className="info-section">
           <h2>Personal Information</h2>
@@ -187,7 +186,7 @@ const ApplicantDetails = () => {
             </div>
           </div>
         </div>
- 
+
         {/* Test Information */}
         {testAttempt && (
           <div className="info-section">
@@ -208,17 +207,16 @@ const ApplicantDetails = () => {
               <div className="info-item">
                 <label>Test Status:</label>
                 <span
-                  className={`status-badge ${
-                    testStatus === "completed"
+                  className={`status-badge ${testStatus === "completed"
                       ? "status-complete"
                       : testStatus === "attending"
-                      ? "status-progress"
-                      : testStatus === "attempts-exceeded"
-                      ? "status-attempts-exceeded"
-                      : testStatus === "expired"
-                      ? "status-expired"
-                      : "status-pending"
-                  }`}
+                        ? "status-progress"
+                        : testStatus === "attempts-exceeded"
+                          ? "status-attempts-exceeded"
+                          : testStatus === "expired"
+                            ? "status-expired"
+                            : "status-pending"
+                    }`}
                 >
                   {testStatus === "attempts-exceeded"
                     ? "attempts exceeded"
@@ -276,9 +274,8 @@ const ApplicantDetails = () => {
               <div className="info-item">
                 <label>Is Submitted:</label>
                 <span
-                  className={`info-value ${
-                    testAttempt.is_submitted ? "submitted" : "not-submitted"
-                  }`}
+                  className={`info-value ${testAttempt.is_submitted ? "submitted" : "not-submitted"
+                    }`}
                 >
                   {testAttempt.is_submitted ? "Yes" : "No"}
                 </span>
@@ -286,7 +283,7 @@ const ApplicantDetails = () => {
             </div>
           </div>
         )}
- 
+
         {/* Performance Summary */}
         <div className="info-section">
           <h2>Performance Summary</h2>
@@ -294,9 +291,8 @@ const ApplicantDetails = () => {
             <div className="performance-card">
               <div className="performance-title">MCQ Score</div>
               <div
-                className={`performance-value ${
-                  mcqScore > 20 ? "score-pass" : "score-fail"
-                }`}
+                className={`performance-value ${mcqScore > 20 ? "score-pass" : "score-fail"
+                  }`}
               >
                 {mcqScore}/{totalMcqQuestions}
               </div>
@@ -307,13 +303,12 @@ const ApplicantDetails = () => {
             <div className="performance-card">
               <div className="performance-title">Coding Tests</div>
               <div
-                className={`performance-value ${
-                  passedTests > 0
+                className={`performance-value ${passedTests > 0
                     ? "score-pass"
                     : totalTests > 0
-                    ? "score-fail"
-                    : "score-pending"
-                }`}
+                      ? "score-fail"
+                      : "score-pending"
+                  }`}
               >
                 {passedTests}/{totalTests}
               </div>
@@ -322,9 +317,8 @@ const ApplicantDetails = () => {
             <div className="performance-card">
               <div className="performance-title">Overall Result</div>
               <div
-                className={`performance-value ${
-                  isSelected ? "score-pass" : "score-fail"
-                }`}
+                className={`performance-value ${isSelected ? "score-pass" : "score-fail"
+                  }`}
               >
                 {isSelected ? "SELECTED" : "NOT SELECTED"}
               </div>
@@ -334,7 +328,7 @@ const ApplicantDetails = () => {
             </div>
           </div>
         </div>
- 
+
         {/* Malpractice Information */}
         {candidate.malpractice && candidate.malpractice.length > 0 && (
           <div className="info-section">
@@ -355,16 +349,22 @@ const ApplicantDetails = () => {
             </div>
           </div>
         )}
- 
+
         {/* Action Buttons */}
         <div className="action-section">
           <div className="action-buttons">
-            <Link
-              to={`/results/mcq/${candidate.id}`}
-              className="action-button mcq-button"
-            >
-              View MCQ Details
-            </Link>
+            {(() => {
+              const mcqMode = candidate.test_attempts?.[0]?.mcq_mode || "manual";
+
+              return (
+                <Link
+                  to={`/results/mcq/${mcqMode}/${candidate.id}`}
+                  className="action-button mcq-button"
+                >
+                  View MCQ Details
+                </Link>
+              );
+            })()}
             <Link
               to={`/results/coding/${candidate.id}`}
               className="action-button coding-button"
@@ -385,7 +385,6 @@ const ApplicantDetails = () => {
     </div>
   );
 };
- 
+
 export default ApplicantDetails;
- 
- 
+
