@@ -42,7 +42,7 @@ export const LANGUAGE_CONFIG: Record<string, LanguageConfigItem> = {
  
  java: {
   extension: '.java',
-  image: 'openjdk:17',
+  image: 'eclipse-temurin:17-jdk',
   extraVolume: LIBS_PATH,
   command: (_file) => `javac -cp ".:/app/libs/*" Main.java && java -cp ".:/app/libs/*" Main`,
 },
