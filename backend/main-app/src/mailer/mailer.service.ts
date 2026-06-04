@@ -6,8 +6,8 @@ export class MailerService {
   private transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user:  process.env.MAIL_USER,
-      pass: process.env.MAIL_PASSWORD,
+      user: 'm.pranavbharathi@gmail.com',
+      pass: 'ylzh noqz jpgf pubb',
     },
   });
 
@@ -66,11 +66,10 @@ export class MailerService {
     </div>
   `,
       });
-    } 
-    catch (err) {
-  console.error('MAIL ERROR:', err);
-  throw err;
-}
+    } catch (err) {
+    
+      throw new Error('Failed to send test link email');
+    }
   }
 
   async sendTestLink(
